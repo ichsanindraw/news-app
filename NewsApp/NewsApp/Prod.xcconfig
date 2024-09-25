@@ -1,0 +1,11 @@
+//
+//  Prod.xcconfig
+//  NewsApp
+//
+//  Created by Ichsan Indra Wahyudi on 25/09/24.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+API_URL = https:/$()/api.spaceflightnewsapi.net/v4
