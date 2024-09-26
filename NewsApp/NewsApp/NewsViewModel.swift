@@ -23,8 +23,8 @@ class NewsViewModel {
         self.networkManager = networkManager
     }
 
-    func getArticles() {
-        networkManager.request(.article, [Article].self)
+    func getArticles(limit: Int? = nil) {
+        networkManager.request(.article(limit: limit), [Article].self)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
@@ -40,8 +40,8 @@ class NewsViewModel {
             .store(in: &cancellables)
     }
     
-    func getBlogs() {
-        networkManager.request(.blog, [Blog].self)
+    func getBlogs(limit: Int? = nil) {
+        networkManager.request(.blog(limit: limit), [Blog].self)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
@@ -57,8 +57,8 @@ class NewsViewModel {
             .store(in: &cancellables)
     }
     
-    func getReports() {
-        networkManager.request(.report, [Report].self)
+    func getReports(limit: Int? = nil) {
+        networkManager.request(.report(limit: limit), [Report].self)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {

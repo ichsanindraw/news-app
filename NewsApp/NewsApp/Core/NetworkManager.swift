@@ -12,17 +12,17 @@ import Foundation
 
 public class NetworkManager {
     func request<D: Decodable>(
-        _ target: Target,
+        _ target: NewsTarget,
         _ responsetype: D.Type
     ) -> AnyPublisher<BaseResponse<D>, Error> {
-        guard let url = URL(string: "https://api.spaceflightnewsapi.net/v4/\(target.path)") else {
+        guard let urlRequest = createRequest(for: target) else {
             return Fail(error: NetworkError.invalidResponse).eraseToAnyPublisher()
         }
         
         let jsonDecoder = JSONDecoder()
         jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
         
-        return URLSession.shared.dataTaskPublisher(for: url)
+        return URLSession.shared.dataTaskPublisher(for: urlRequest)
             .tryMap { result -> Data in
                 guard let response = result.response as? HTTPURLResponse, response.statusCode == 200 else {
                     throw NetworkError.serverError("Server responded with error.")
@@ -42,12 +42,31 @@ public class NetworkManager {
             }
             .eraseToAnyPublisher()
     }
+    
+    private func createRequest(for target: NewsTarget) -> URLRequest? {
+        guard var components = URLComponents(string: "https://api.spaceflightnewsapi.net/v4/\(target.path)") else {
+            return nil
+        }
+        
+        components.queryItems = target.queryParameters?.map { key, value in
+            URLQueryItem(name: key, value: "\(value)")
+        }
+        
+        guard let url = components.url else {
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = target.method.rawValue
+        
+        return request
+    }
 }
 
-enum Target {
-    case article
-    case blog
-    case report
+enum NewsTarget {
+    case article(limit: Int?)
+    case blog(limit: Int?)
+    case report(limit: Int?)
     
     var path: String {
         switch self {
@@ -59,6 +78,43 @@ enum Target {
             return "reports"
         }
     }
+    
+    var method: HTTPMethod {
+        switch self {
+        case .article, .blog, .report:
+            return .get
+        }
+    }
+    
+    var queryParameters: [String: Any]? {
+        switch self {
+        case let .article(limit):
+            guard let limit else { return nil }
+            
+            return [
+                "limit": limit
+            ]
+            
+        case let .blog(limit):
+            guard let limit else { return nil }
+            
+            return [
+                "limit": limit
+            ]
+            
+        case let .report(limit):
+            guard let limit else { return nil }
+            
+            return [
+                "limit": limit
+            ]
+        }
+    }
+}
+
+enum HTTPMethod: String {
+    case get = "GET"
+    case post = "POST"
 }
 
 enum NetworkError: LocalizedError {

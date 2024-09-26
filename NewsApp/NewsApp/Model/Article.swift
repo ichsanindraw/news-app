@@ -11,10 +11,10 @@ struct BaseResponse<T: Decodable & Equatable>: Decodable, Equatable {
     let count: Int
     let next: String?
     let previous: String?
-    let results: T?
+    let results: T
 }
 
-protocol BaseContent: Codable, Equatable {
+protocol BaseContent: Codable, Equatable {    
     var id: Int { get }
     var title: String { get }
     var url: String { get }
@@ -29,17 +29,6 @@ protocol AdditionalContent: Codable, Equatable {
     var featured: Bool { get }
     var launches: [Launch] { get }
     var events: [Event] { get }
-}
-
-struct Report: BaseContent {
-    let id: Int
-    let title: String
-    let url: String
-    let imageUrl: String
-    let newsSite: String
-    let summary: String
-    let publishedAt: String
-    let updatedAt: String
 }
 
 struct Article: BaseContent, AdditionalContent {
@@ -68,6 +57,17 @@ struct Blog: BaseContent, AdditionalContent {
     let featured: Bool
     let launches: [Launch]
     let events: [Event]
+}
+
+struct Report: BaseContent {
+    let id: Int
+    let title: String
+    let url: String
+    let imageUrl: String
+    let newsSite: String
+    let summary: String
+    let publishedAt: String
+    let updatedAt: String
 }
 
 struct Launch: Codable, Equatable {
