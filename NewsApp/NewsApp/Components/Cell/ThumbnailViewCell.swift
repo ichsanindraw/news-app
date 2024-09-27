@@ -9,7 +9,12 @@ import Foundation
 import UIKit
 import Kingfisher
 
-final class ThumbnailViewCell<D: BaseContent>: UICollectionViewCell {
+final class ThumbnailViewCell: UICollectionViewCell {
+    struct Data {
+        let title: String
+        let imageUrl: String
+    }
+    
     private let imageView: UIImageView = {
         let view = UIImageView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -27,13 +32,20 @@ final class ThumbnailViewCell<D: BaseContent>: UICollectionViewCell {
     }()
     
     static var cellReuseIdentifier: String {
-        return String(describing: ThumbnailViewCell<D>.self)
+        return String(describing: ThumbnailViewCell.self)
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         setupUI()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        imageView.image = nil
+        titleLabel.text = nil
     }
     
     required init?(coder: NSCoder) {
@@ -56,7 +68,7 @@ final class ThumbnailViewCell<D: BaseContent>: UICollectionViewCell {
        ])
     }
     
-    func configure(data: D) {
+    func configure(data: ThumbnailViewCell.Data) {
         if let url = URL(string: data.imageUrl) {
             imageView.kf.setImage(with: url)
         } else {
@@ -67,4 +79,3 @@ final class ThumbnailViewCell<D: BaseContent>: UICollectionViewCell {
         titleLabel.text = data.title
     }
 }
-

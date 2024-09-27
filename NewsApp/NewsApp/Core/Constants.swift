@@ -9,4 +9,7 @@ import Foundation
 
 struct Constants {
     static let API_URL = (Bundle.main.infoDictionary?["API_URL"] as? String) ?? ""
+    
+    static let bgAppTaskIdentifier = "com.newsapp.logoutTask"
+    static let loginTimeKey = "loginTime"
 }

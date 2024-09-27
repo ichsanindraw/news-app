@@ -10,7 +10,15 @@ import Foundation
 import Combine
 import Foundation
 
-public class NetworkManager {
+public class NetworkManager: NSObject, URLSessionDelegate {
+    private var session: URLSession!
+        
+    override init() {
+        super.init()
+        let config = URLSessionConfiguration.default
+        session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+    }
+    
     func request<D: Decodable>(
         _ target: NewsTarget,
         _ responsetype: D.Type
@@ -22,7 +30,7 @@ public class NetworkManager {
         let jsonDecoder = JSONDecoder()
         jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
         
-        return URLSession.shared.dataTaskPublisher(for: urlRequest)
+        return session.dataTaskPublisher(for: urlRequest)
             .tryMap { result -> Data in
                 guard let response = result.response as? HTTPURLResponse, response.statusCode == 200 else {
                     throw NetworkError.serverError("Server responded with error.")
@@ -44,7 +52,7 @@ public class NetworkManager {
     }
     
     private func createRequest(for target: NewsTarget) -> URLRequest? {
-        guard var components = URLComponents(string: "https://api.spaceflightnewsapi.net/v4/\(target.path)") else {
+        guard var components = URLComponents(string: "\(Constants.API_URL)/\(target.path)") else {
             return nil
         }
         
@@ -61,60 +69,49 @@ public class NetworkManager {
         
         return request
     }
-}
-
-enum NewsTarget {
-    case article(limit: Int?)
-    case blog(limit: Int?)
-    case report(limit: Int?)
     
-    var path: String {
-        switch self {
-        case .article:
-            return "articles"
-        case .blog:
-            return "blogs"
-        case .report:
-            return "reports"
+    // MARK: - URLSessionDelegate for SSL Pinning
+        
+    public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        guard let serverTrust = challenge.protectionSpace.serverTrust else {
+            completionHandler(.cancelAuthenticationChallenge, nil)
+            return
+        }
+        
+        // Fetch the certificate chain from the server
+        var certificates: [SecCertificate] = []
+       
+        if #available(iOS 15.0, *) {
+           if let certificateChain = SecTrustCopyCertificateChain(serverTrust) as? [SecCertificate] {
+               certificates = certificateChain
+           }
+        } else {
+            if let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0) {
+                certificates = [certificate]
+            }
+        }
+        
+        guard let serverCertificate = certificates.first else {
+            completionHandler(.cancelAuthenticationChallenge, nil)
+            return
+        }
+        
+        // Load your local certificate
+        if let localCertificatePath = Bundle.main.path(forResource: "spaceflightnewsapi.net", ofType: "cer"),
+           let localCertificateData = NSData(contentsOfFile: localCertificatePath),
+           let serverCertificateData = SecCertificateCopyData(serverCertificate) as Data? {
+            
+            // Compare the certificates
+            if localCertificateData.isEqual(to: serverCertificateData) {
+                let credential = URLCredential(trust: serverTrust)
+                completionHandler(.useCredential, credential)
+            } else {
+                completionHandler(.cancelAuthenticationChallenge, nil)
+            }
+        } else {
+            completionHandler(.cancelAuthenticationChallenge, nil)
         }
     }
-    
-    var method: HTTPMethod {
-        switch self {
-        case .article, .blog, .report:
-            return .get
-        }
-    }
-    
-    var queryParameters: [String: Any]? {
-        switch self {
-        case let .article(limit):
-            guard let limit else { return nil }
-            
-            return [
-                "limit": limit
-            ]
-            
-        case let .blog(limit):
-            guard let limit else { return nil }
-            
-            return [
-                "limit": limit
-            ]
-            
-        case let .report(limit):
-            guard let limit else { return nil }
-            
-            return [
-                "limit": limit
-            ]
-        }
-    }
-}
-
-enum HTTPMethod: String {
-    case get = "GET"
-    case post = "POST"
 }
 
 enum NetworkError: LocalizedError {

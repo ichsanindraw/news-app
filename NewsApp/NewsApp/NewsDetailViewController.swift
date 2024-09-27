@@ -9,10 +9,17 @@ import Foundation
 import Kingfisher
 import UIKit
 
-final class NewsDetailViewController<D: BaseContent>: UIViewController {
+final class NewsDetailViewController: UIViewController {
+    struct Data {
+        let title: String
+        let imageUrl: String
+        let publishedAt: String
+        let summary: String
+    }
+    
     private let scrollView: UIScrollView = {
         let view = UIScrollView()
-        view.contentInset = UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 0)
+        view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -61,7 +68,7 @@ final class NewsDetailViewController<D: BaseContent>: UIViewController {
         return label
     }()
     
-    init(data: D) {
+    init(data: NewsDetailViewController.Data) {
         super.init(nibName: nil, bundle: nil)
         
         if let url = URL(string: data.imageUrl) {

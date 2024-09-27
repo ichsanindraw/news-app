@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UserNotifications
 
 func getGreeting() -> String {
     let hour = Calendar.current.component(.hour, from: Date())
@@ -44,4 +45,53 @@ func extractFirstSentence(from text: String) -> String {
         return String(firstSentence).trimmingCharacters(in: .whitespacesAndNewlines)
     }
     return text
+}
+
+//func checkAutoLogout() {
+//    if let loginTime = UserDefaults.standard.object(forKey: Constants.loginTimeKey) as? Date {
+//        let currentTime = Date()
+//        let timeInterval = currentTime.timeIntervalSince(loginTime)
+//
+//        // Jika lebih dari 10 menit (600 detik)
+//        if timeInterval > 600 {
+//            logoutUser()
+//        }
+//    }
+//}
+
+//func logoutUser() {
+//    // Logika untuk logout pengguna
+//    UserDefaults.standard.removeObject(forKey: Constants.loginTimeKey)
+//    
+//    // Kirim push notifikasi
+//    let content = UNMutableNotificationContent()
+//    content.title = "Logout"
+//    content.body = "Akun Anda sudah terlogout otomatis."
+//
+//    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+//    let request = UNNotificationRequest(identifier: "logoutNotification", content: content, trigger: trigger)
+//
+//    UNUserNotificationCenter.current().add(request) { error in
+//        if let error = error {
+//            print("Error sending notification: \(error)")
+//        }
+//    }
+//}
+
+func sendLogoutNotification() {
+    let content = UNMutableNotificationContent()
+    content.title = "Session Expired"
+    content.body = "Akun Anda sudah terlogout secara otomatis setelah 10 menit tidak aktif."
+    content.sound = UNNotificationSound.default
+
+    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+    let request = UNNotificationRequest(identifier: "logoutNotification", content: content, trigger: trigger)
+
+    UNUserNotificationCenter.current().add(request) { error in
+        if let error = error {
+            print("Failed to send logout notification: \(error)")
+        } else {
+            print("Logout notification sent successfully.")
+        }
+    }
 }
