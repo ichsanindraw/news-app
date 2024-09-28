@@ -7,32 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "513227C2-545F-441B-85D4-C754A2C099E8"
+            uuid = "34D2B610-2B7F-41F1-A82D-048E71AD69F5"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NewsApp/Domain/ArticleViewModel.swift"
+            filePath = "NewsApp/AppDelegate.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "66"
-            endingLineNumber = "66"
-            landmarkName = "getArticles(query:page:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "229C972E-4F46-435B-8AD1-B7BCE734FE3C"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NewsApp/Domain/ArticleViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "69"
-            endingLineNumber = "69"
-            landmarkName = "getArticles(query:page:)"
+            startingLineNumber = "60"
+            endingLineNumber = "60"
+            landmarkName = "checkAutoLogout()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

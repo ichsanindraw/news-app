@@ -5,6 +5,7 @@
 //  Created by Ichsan Indra Wahyudi on 26/09/24.
 //
 
+import Combine
 import UIKit
 
 extension UIView {
@@ -17,5 +18,13 @@ extension UIView {
             }
         }
         return nil
+    }
+}
+
+extension UITextField {
+    var textPublisher: AnyPublisher<String, Never> {
+        NotificationCenter.default.publisher(for: UITextField.textDidChangeNotification, object: self)
+            .compactMap { ($0.object as? UITextField)?.text }
+            .eraseToAnyPublisher()
     }
 }

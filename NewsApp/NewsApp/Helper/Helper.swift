@@ -7,6 +7,7 @@
 
 import Foundation
 import UserNotifications
+import UIKit
 
 func getGreeting() -> String {
     let hour = Calendar.current.component(.hour, from: Date())
@@ -47,41 +48,44 @@ func extractFirstSentence(from text: String) -> String {
     return text
 }
 
-//func checkAutoLogout() {
-//    if let loginTime = UserDefaults.standard.object(forKey: Constants.loginTimeKey) as? Date {
-//        let currentTime = Date()
-//        let timeInterval = currentTime.timeIntervalSince(loginTime)
-//
-//        // Jika lebih dari 10 menit (600 detik)
-//        if timeInterval > 600 {
-//            logoutUser()
-//        }
-//    }
-//}
+extension String {
+    func isValidEmail() -> Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        return NSPredicate(format: "SELF MATCHES %@", emailRegEx).evaluate(with: self)
+    }
+}
 
-//func logoutUser() {
-//    // Logika untuk logout pengguna
-//    UserDefaults.standard.removeObject(forKey: Constants.loginTimeKey)
-//    
-//    // Kirim push notifikasi
-//    let content = UNMutableNotificationContent()
-//    content.title = "Logout"
-//    content.body = "Akun Anda sudah terlogout otomatis."
-//
-//    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-//    let request = UNNotificationRequest(identifier: "logoutNotification", content: content, trigger: trigger)
-//
-//    UNUserNotificationCenter.current().add(request) { error in
-//        if let error = error {
-//            print("Error sending notification: \(error)")
-//        }
-//    }
-//}
+func saveRecentSearch(query: String) {
+    var recentSearches = UserDefaults.standard.stringArray(forKey: Constants.recentSearchKey) ?? []
+        
+    // Avoid duplicates and limit to 5 recent searches
+    if !recentSearches.contains(query) && !query.isEmpty {
+        recentSearches.insert(query, at: 0)
+    }
+    
+    // Keep only the last 5 searches
+    if recentSearches.count > 5 {
+        recentSearches = Array(recentSearches.prefix(5))
+    }
+    
+    UserDefaults.standard.set(recentSearches, forKey: Constants.recentSearchKey)
+}
+
+
+func requestNotificationPermissions() {
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+        if granted {
+            print("Permission granted")
+        } else if let error = error {
+            print("Permission denied: \(error.localizedDescription)")
+        }
+    }
+}
 
 func sendLogoutNotification() {
     let content = UNMutableNotificationContent()
     content.title = "Session Expired"
-    content.body = "Akun Anda sudah terlogout secara otomatis setelah 10 menit tidak aktif."
+    content.body = "Akun Anda sudah terlogout secara otomatis setelah 10 menit."
     content.sound = UNNotificationSound.default
 
     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
@@ -92,6 +96,27 @@ func sendLogoutNotification() {
             print("Failed to send logout notification: \(error)")
         } else {
             print("Logout notification sent successfully.")
+            // Push the login screen
+            DispatchQueue.main.async {
+                if let sceneDelegate = UIApplication.shared.delegate as? SceneDelegate {
+                    
+                    // Initialize and set LoginViewController
+                    let loginViewController = LoginViewController()
+                    sceneDelegate.window?.rootViewController = UINavigationController(
+                        rootViewController: loginViewController
+                    )
+                    sceneDelegate.window?.makeKeyAndVisible()
+                }
+            }
         }
+    }
+}
+
+func logout() {
+    UserDefaults.standard.removeObject(forKey: Constants.lastLoginTimeKey)
+    UserDefaults.standard.removeObject(forKey: Constants.loggedInUserDataKey)
+    
+    DispatchQueue.main.async {
+        sendLogoutNotification()
     }
 }

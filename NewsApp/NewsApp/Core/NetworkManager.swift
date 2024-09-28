@@ -22,7 +22,7 @@ public class NetworkManager: NSObject, URLSessionDelegate {
     func request<D: Decodable>(
         _ target: NewsTarget,
         _ responsetype: D.Type
-    ) -> AnyPublisher<BaseResponse<D>, Error> {
+    ) -> AnyPublisher<D, Error> {
         guard let urlRequest = createRequest(for: target) else {
             return Fail(error: NetworkError.invalidResponse).eraseToAnyPublisher()
         }
@@ -38,7 +38,7 @@ public class NetworkManager: NSObject, URLSessionDelegate {
                 
                 return result.data
             }
-            .decode(type: BaseResponse<D>.self, decoder: jsonDecoder)
+            .decode(type: D.self, decoder: jsonDecoder)
             .mapError { error -> NetworkError in
                 if let urlError = error as? URLError {
                     return .serverError(urlError.localizedDescription)

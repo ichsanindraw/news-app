@@ -13,6 +13,8 @@ final class ThumbnailViewCell: UICollectionViewCell {
     struct Data {
         let title: String
         let imageUrl: String
+        let launches: [String] = []
+        let events: [String] = []
     }
     
     private let imageView: UIImageView = {
@@ -27,6 +29,14 @@ final class ThumbnailViewCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 2
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let launcheLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 2
+        label.text = "Launches"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -46,6 +56,8 @@ final class ThumbnailViewCell: UICollectionViewCell {
         
         imageView.image = nil
         titleLabel.text = nil
+        
+        launcheLabel.removeFromSuperview()
     }
     
     required init?(coder: NSCoder) {
@@ -53,6 +65,8 @@ final class ThumbnailViewCell: UICollectionViewCell {
     }
     
     private func setupUI() {
+//        backgroundColor = .blue
+        
         addSubview(imageView)
         addSubview(titleLabel)
         
@@ -77,5 +91,15 @@ final class ThumbnailViewCell: UICollectionViewCell {
         }
         
         titleLabel.text = data.title
+        
+        if !data.launches.isEmpty {
+            addSubview(launcheLabel)
+            
+            NSLayoutConstraint.activate([
+                launcheLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+                launcheLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+                launcheLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            ])
+        }
     }
 }

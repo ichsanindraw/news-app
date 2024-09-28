@@ -87,3 +87,8 @@ enum ViewState<T: Equatable>: Equatable {
     case success(T)
     case error(String)
 }
+
+enum SortBy: String {
+    case asc
+    case desc
+}

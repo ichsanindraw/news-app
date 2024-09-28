@@ -1,5 +1,5 @@
 //
-//  ArticleCollectionView.swift
+//  ArticleListView.swift
 //  NewsApp
 //
 //  Created by Ichsan Indra Wahyudi on 26/09/24.
@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-final class ArticleCollectionView: UIView {
+final class ArticleListView: UIView {
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 16
@@ -81,16 +81,12 @@ final class ArticleCollectionView: UIView {
         collectionViewHeightConstraint?.constant = contentHeight
    }
     
-    func updateData(_ newData: [Article], shouldReset: Bool = false) {
-        if shouldReset {
-            self.data = []
-        }
-        
-        self.data.append(contentsOf: newData)
+    func updateData(_ newData: [Article]) {
+        self.data = newData
     }
 }
 
-extension ArticleCollectionView: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+extension ArticleListView: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }

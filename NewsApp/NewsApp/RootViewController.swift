@@ -54,7 +54,13 @@ final class RootViewController: UIViewController {
         
         viewModel.getArticles(limit: 4)
 //        viewModel.getBlogs(limit: 4)
-//        viewModel.getReports(limit: 4)
+        viewModel.getReports(limit: 4)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        requestNotificationPermissions()
     }
     
     private func setupNavigationAppearance() {
@@ -81,7 +87,7 @@ final class RootViewController: UIViewController {
             .sink { [weak self] state in
                 switch state {
                 case let .success(data):
-                    print(">>> handleStateChange $articlesViewState: \(data.results.count)")
+//                    print(">>> handleStateChange $articlesViewState: \(data.results.count)")
                     self?.handleStateChange(
                         for: state,
                         section: SectionType.article.rawValue
@@ -97,7 +103,7 @@ final class RootViewController: UIViewController {
             .sink { [weak self] state in
                 switch state {
                 case let .success(data):
-                    print(">>> handleStateChange $blogsViewState: \(data.results.count)")
+//                    print(">>> handleStateChange $blogsViewState: \(data.results.count)")
                     self?.handleStateChange(
                         for: state,
                         section: SectionType.blog.rawValue
@@ -113,7 +119,7 @@ final class RootViewController: UIViewController {
             .sink { [weak self] state in
                 switch state {
                 case let .success(data):
-                    print(">>> handleStateChange $reportsViewState: \(data.results.count)")
+//                    print(">>> handleStateChange $reportsViewState: \(data.results.count)")
                     self?.handleStateChange(
                         for: state,
                         section: SectionType.report.rawValue
@@ -132,34 +138,6 @@ final class RootViewController: UIViewController {
            }, completion: nil)
         }
     }
-    
-//    private func handleStateChange<T>(for state: ViewState<T>, section: Int) {
-//        DispatchQueue.main.async {
-//            switch section {
-//            case SectionType.article.rawValue:
-//                if case .success(let data) = self.viewModel.articlesViewState, !data.results.isEmpty {
-//                    self.collectionView.performBatchUpdates({
-//                        self.collectionView.reloadSections(IndexSet(integer: section))
-//                    }, completion: nil)
-//                }
-//            case SectionType.blog.rawValue:
-//                if case .success(let data) = self.viewModel.blogsViewState, !data.results.isEmpty {
-//                    self.collectionView.performBatchUpdates({
-//                        self.collectionView.reloadSections(IndexSet(integer: section))
-//                    }, completion: nil)
-//                }
-//            case SectionType.report.rawValue:
-//                if case .success(let data) = self.viewModel.reportsViewState, !data.results.isEmpty {
-//                    self.collectionView.performBatchUpdates({
-//                        self.collectionView.reloadSections(IndexSet(integer: section))
-//                    }, completion: nil)
-//                }
-//            default:
-//                break
-//            }
-//        }
-//    }
-
     
     private func setupCollection() {
         collectionView.delegate = self
@@ -260,19 +238,19 @@ extension RootViewController: UICollectionViewDataSource {
         switch sectionType {
         case .article:
             if case let .success(data) = viewModel.articlesViewState {
-                print(">>> articlesViewState: \(data.results.count)")
+//                print(">>> articlesViewState: \(data.results.count)")
                 return data.results.count
             }
             
         case .blog:
             if case let .success(data) = viewModel.blogsViewState {
-                print(">>> blogsViewState: \(data.results.count)")
+//                print(">>> blogsViewState: \(data.results.count)")
                 return data.results.count
             }
             
         case .report:
             if case let .success(data) = viewModel.reportsViewState {
-                print(">>> reportsViewState: \(data.results.count)")
+//                print(">>> reportsViewState: \(data.results.count)")
                 return data.results.count
             }
             
@@ -288,7 +266,7 @@ extension RootViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
-        print(">>>  indexPath \(indexPath)")
+//        print(">>>  indexPath \(indexPath)")
         
         let sectionType = SectionType(rawValue: indexPath.section)
         
@@ -342,18 +320,20 @@ extension RootViewController: UICollectionViewDataSource {
         switch sectionType {
         case .article:
             cell.configure(title: "Artikel", onSeeMoreTapped: { [weak self] in
-                let viewController = ArticleListViewController()
+                let viewController = ArticleViewController()
                 self?.navigationController?.pushViewController(viewController, animated: true)
             })
             
         case .blog:
-            cell.configure(title: "Blog", onSeeMoreTapped: {
-                
+            cell.configure(title: "Blog", onSeeMoreTapped: { [weak self] in
+                let viewController = BlogViewController()
+                self?.navigationController?.pushViewController(viewController, animated: true)
             })
             
         case .report:
-            cell.configure(title: "Report", onSeeMoreTapped: {
-                
+            cell.configure(title: "Report", onSeeMoreTapped: { [weak self] in
+                let viewController = ReportViewController()
+                self?.navigationController?.pushViewController(viewController, animated: true)
             })
             
         default:  break

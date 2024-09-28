@@ -23,11 +23,12 @@ class NewsViewModel {
     func getArticles(
         limit: Int = 10,
         offset: Int? = nil,
-        query: String = ""
+        query: String = "",
+        category: String = ""
     ) {
         articlesViewState = .loading
         
-        newsService.getArticle(limit, offset, query)
+        newsService.getArticle(limit, offset, query, category)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
                 case .finished:
@@ -45,11 +46,12 @@ class NewsViewModel {
     func getBlogs(
         limit: Int = 10,
         offset: Int? = nil,
-        query: String = ""
+        query: String = "",
+        category: String = ""
     ) {
         blogsViewState = .loading
         
-        newsService.getBlog(limit, offset, query)
+        newsService.getBlog(limit, offset, query, category)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
                 case .finished:
@@ -67,11 +69,12 @@ class NewsViewModel {
     func getReports(
         limit: Int = 10,
         offset: Int? = nil,
-        query: String = ""
+        query: String = "",
+        category: String = ""
     ) {
         reportsViewState = .loading
         
-        newsService.getReport(limit, offset, query)
+        newsService.getReport(limit, offset, query, category)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
                 case .finished:
@@ -84,60 +87,5 @@ class NewsViewModel {
                 self?.reportsViewState = .success(data)
             })
             .store(in: &cancellables)
-    }
-}
-
-protocol NewsServiceProtocol {
-    func getArticle(
-        _ limit: Int,
-        _ offset: Int?,
-        _ query: String
-    ) -> AnyPublisher<BaseResponse<[Article]>, Error>
-    
-    func getBlog(
-        _ limit: Int,
-        _ offset: Int?,
-        _ query: String
-    ) -> AnyPublisher<BaseResponse<[Blog]>, Error>
-    
-    func getReport(
-        _ limit: Int,
-        _ offset: Int?,
-        _ query: String
-    ) -> AnyPublisher<BaseResponse<[Report]>, Error>
-}
-
-class NewsService: NewsServiceProtocol {
-    private let networkManager = NetworkManager()
-    private var cancellables = Set<AnyCancellable>()
-    
-    func getArticle(_ limit: Int, _ offset: Int?, _ query: String) -> AnyPublisher<BaseResponse<[Article]>, Error> {
-        return networkManager.request(.getArticles(
-            limit: limit,
-            offset: offset,
-            query: query
-        ), [Article].self)
-//        .receive(on: DispatchQueue.main)
-//        .eraseToAnyPublisher()
-    }
-    
-    func getBlog(_ limit: Int, _ offset: Int?, _ query: String) -> AnyPublisher<BaseResponse<[Blog]>, Error> {
-        return networkManager.request(.getBlogs(
-            limit: limit,
-            offset: offset,
-            query: query
-        ), [Blog].self)
-//        .receive(on: DispatchQueue.main)
-//        .eraseToAnyPublisher()
-    }
-    
-    func getReport(_ limit: Int, _ offset: Int?, _ query: String) -> AnyPublisher<BaseResponse<[Report]>, Error> {
-        return networkManager.request(.getReports(
-            limit: limit,
-            offset: offset,
-            query: query
-        ), [Report].self)
-//        .receive(on: DispatchQueue.main)
-//        .eraseToAnyPublisher()
     }
 }

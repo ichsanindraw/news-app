@@ -12,7 +12,7 @@ import BackgroundTasks
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Register the background task when the app launches
-        registerBackgroundTask()
+//        registerBackgroundTask()
         
         // Override point for customization after application launch.
         return true
@@ -51,7 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func checkAutoLogout() {
-        if let loginTime = UserDefaults.standard.object(forKey: Constants.loginTimeKey) as? Date {
+        if let loginTime = UserDefaults.standard.object(forKey: Constants.lastLoginTimeKey) as? Date {
             let currentTime = Date()
             let timeInterval = currentTime.timeIntervalSince(loginTime)
 
@@ -64,7 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func logoutUser() {
         // Perform logout and clear login time
-        UserDefaults.standard.removeObject(forKey: Constants.loginTimeKey)
+        UserDefaults.standard.removeObject(forKey: Constants.lastLoginTimeKey)
         
         // Optionally, notify the user via push notification
         print("User logged out due to inactivity.")
@@ -73,3 +73,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+
+//enum SectionGallery {
+//    case video(id: Int, item: [String])
+//}
+//
+//enum SectionItemGallery {
+//    case test
+//}

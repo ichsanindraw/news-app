@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import BackgroundTasks
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIApplicationDelegate {
 
@@ -19,36 +18,31 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIApplicationDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        /// Register for remote notifications. This shows a permission dialog on first run, to
-        /// show the dialog at a more appropriate time move this registration accordingly.
-        ///
         setupNotification: do {
             UIApplication.shared.delegate = self
             UNUserNotificationCenter.current().delegate = self
-
-            let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-           
-            UNUserNotificationCenter.current().requestAuthorization(options:    authOptions, completionHandler: { granted, error in
-                if granted {
-                    print("Permission granted")
-                } else if let error = error {
-                    print("Error: \(error)")
-                }
-            })
-
             UIApplication.shared.registerForRemoteNotifications()
         }
               
         window = UIWindow(windowScene: windowScene)
+       
+        let viewController: UIViewController
         
-        let rootViewController = RootViewController()
+        if isUserLoggedIn() {
+            viewController = RootViewController()
+        } else {
+            viewController = LoginViewController()
+        }
         
-        /// Programatically UI Layouting
         window?.rootViewController = UINavigationController(
-            rootViewController: rootViewController
+            rootViewController: viewController
         )
       
         window?.makeKeyAndVisible()
+    }
+    
+    func isUserLoggedIn() -> Bool {
+        return UserDefaults.standard.data(forKey: Constants.loggedInUserDataKey) != nil
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -79,54 +73,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIApplicationDelegate {
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
-        print(">>> sceneDidEnterBackground")
-        logoutTimer?.invalidate()
-        scheduleBackgroundLogout()
     }
 
     func startLogoutTimerIfNeeded() {
         // Check if the login time is saved in UserDefaults
-        if let loginTime = UserDefaults.standard.object(forKey: Constants.loginTimeKey) as? Date {
+        if let loginTime = UserDefaults.standard.object(forKey: Constants.lastLoginTimeKey) as? Date {
             let timeInterval = Date().timeIntervalSince(loginTime)
-
-            if timeInterval >= 600 {
-                // If 10 minutes has passed, logout immediately
-                logoutUser()
+        
+            if timeInterval >= Constants.loginDuration {
+                logout()
             } else {
-                // If not yet 10 minutes, start a timer for the remaining time
-                let remainingTime = 600 - timeInterval
-                logoutTimer = Timer.scheduledTimer(withTimeInterval: remainingTime, repeats: false) { _ in
-                    self.logoutUser()
+                let remainingTime = Constants.loginDuration - timeInterval
+                logoutTimer = Timer.scheduledTimer(withTimeInterval: remainingTime, repeats: false) { [weak self] _ in
+                    self?.logoutTimer?.invalidate()
+                    
+                    print(">>> startLogoutTimerIfNeeded -> timeInterval: \(timeInterval)")
+                    
+                    logout()
                 }
             }
-        }
-    }
-    
-    func logoutUser() {
-        UserDefaults.standard.removeObject(forKey: Constants.loginTimeKey)
-        
-        let content = UNMutableNotificationContent()
-        content.title = "Logout"
-        content.body = "Akun Anda sudah terlogout otomatis."
-
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-        let request = UNNotificationRequest(identifier: "logoutNotification", content: content, trigger: trigger)
-
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Error sending notification: \(error)")
-            }
-        }
-    }
-    
-    func scheduleBackgroundLogout() {
-        let request = BGAppRefreshTaskRequest(identifier: Constants.bgAppTaskIdentifier)
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 600)
-        
-        do {
-            try BGTaskScheduler.shared.submit(request)
-        } catch {
-            print("Failed to submit background task: \(error)")
         }
     }
 }
