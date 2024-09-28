@@ -112,6 +112,182 @@ public class NetworkManager: NSObject, URLSessionDelegate {
             completionHandler(.cancelAuthenticationChallenge, nil)
         }
     }
+    
+    public func signup(email: String, password: String) -> AnyPublisher<RegisterResult, Error> {
+        let auth0Config = getAuth0Configuration()
+        
+        guard let clientId = auth0Config.clientId,
+              let domain = auth0Config.domain,
+              let url = URL(string: "https://\(domain)/dbconnections/signup") else {
+            return Fail(error: NetworkError.invalidResponse).eraseToAnyPublisher()
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = HTTPMethod.post.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body: [String: Any] = [
+            "client_id": clientId,
+            "email": email,
+            "password": password,
+            "connection": "Username-Password-Authentication"
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
+        } catch {
+            return Fail(error: error).eraseToAnyPublisher()
+        }
+        
+        let jsonDecoder = JSONDecoder()
+        jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .tryMap { (data, response) -> Data in
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    throw NetworkError.invalidResponse
+                }
+                
+                // Print the raw response as a string (for debugging purposes)
+                let jsonString = String(data: data, encoding: .utf8)
+                print("Raw response: \(jsonString ?? "No Data")")
+                
+                if (200...299).contains(httpResponse.statusCode) {
+                    return data
+                } else {
+                    throw try jsonDecoder.decode(RegisterErrorResponse.self, from: data)
+                }
+            }
+            .decode(type: RegisterSuccessResponse.self, decoder: jsonDecoder)
+            .map { .success($0) }
+            .catch { error -> AnyPublisher<RegisterResult, Error> in
+                guard  let errorResponse = error as? RegisterErrorResponse else {
+                    return Fail(error: error).eraseToAnyPublisher()
+                }
+                
+                return Just(.failure(errorResponse))
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    public func signIn(email: String, password: String) -> AnyPublisher<LoginResult, Error> {
+        let auth0Config = getAuth0Configuration()
+        
+        guard let clientId = auth0Config.clientId,
+              let domain = auth0Config.domain,
+              let url = URL(string: "https://\(domain)/oauth/token") else {
+            return Fail(error: NetworkError.invalidResponse).eraseToAnyPublisher()
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = HTTPMethod.post.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body: [String: Any] = [
+            "client_id": clientId,
+            "email": email,
+            "password": password,
+            "username": email,
+            "grant_type": "password",
+            "connection": "Username-Password-Authentication"
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
+        } catch {
+            return Fail(error: error).eraseToAnyPublisher()
+        }
+        
+        let jsonDecoder = JSONDecoder()
+        jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .tryMap { (data, response) -> Data in
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    throw NetworkError.invalidResponse
+                }
+                
+                let jsonString = String(data: data, encoding: .utf8)
+                print("Raw response: \(jsonString ?? "No Data")")
+
+                if (200...299).contains(httpResponse.statusCode) {
+                   return data
+                } else {
+                    throw try jsonDecoder.decode(LoginErrorResponse.self, from: data)
+                }
+            }
+            .decode(type: LoginSuccessResponse.self, decoder: jsonDecoder)
+            .map { .success($0) }
+            .catch { error -> AnyPublisher<LoginResult, Error> in
+                guard  let errorResponse = error as? LoginErrorResponse else {
+                    return Fail(error: error).eraseToAnyPublisher()
+                }
+                
+                return Just(.failure(errorResponse))
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    public func logout() -> AnyPublisher<Void, Error>  {
+        let auth0Config = getAuth0Configuration()
+        
+        guard let domain = auth0Config.domain,
+              let url = URL(string: "https://\(domain)/v2/logout") else {
+            return Fail(error: NetworkError.invalidResponse).eraseToAnyPublisher()
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = HTTPMethod.get.rawValue
+
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .tryMap { (data, response) -> Void in
+                guard response is HTTPURLResponse else {
+                    throw NetworkError.invalidResponse
+                }
+                
+                return
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    public func userInfo() -> AnyPublisher<User, Error> {
+        let auth0Config = getAuth0Configuration()
+        
+        guard let domain = auth0Config.domain,
+              let url = URL(string: "https://\(domain)/userinfo"),
+              let accessToken = KeychainManager.shared.getAccessToken() else {
+            return Fail(error: NetworkError.invalidResponse).eraseToAnyPublisher()
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = HTTPMethod.get.rawValue
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        
+        let jsonDecoder = JSONDecoder()
+        jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .tryMap { (data, response) -> Data in
+                guard response is HTTPURLResponse else {
+                    throw NetworkError.invalidResponse
+                }
+                
+                let jsonString = String(data: data, encoding: .utf8)
+                print("Raw response: \(jsonString ?? "No Data")")
+
+                return data
+            }
+            .decode(type: User.self, decoder: jsonDecoder)
+            .map { $0 }
+            .catch { error -> AnyPublisher<User, Error> in
+                return Fail(error: error).eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
 }
 
 enum NetworkError: LocalizedError {

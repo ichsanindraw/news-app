@@ -7,16 +7,64 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "34D2B610-2B7F-41F1-A82D-048E71AD69F5"
+            uuid = "24958E5E-1913-4715-834A-CAF0996EC78D"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NewsApp/AppDelegate.swift"
+            filePath = "NewsApp/SceneDelegate.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "60"
-            endingLineNumber = "60"
-            landmarkName = "checkAutoLogout()"
+            startingLineNumber = "84"
+            endingLineNumber = "84"
+            landmarkName = "startLogoutTimerIfNeeded()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "24958E5E-1913-4715-834A-CAF0996EC78D - b70c0ede1e39c61"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "NewsApp.SceneDelegate.startLogoutTimerIfNeeded() -&gt; ()"
+                  moduleName = "NewsApp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/ichsanwahyudi/Documents/Projects/iOS/news-app/NewsApp/NewsApp/SceneDelegate.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "84"
+                  endingLineNumber = "84"
+                  offsetFromSymbolStart = "1164">
+               </Location>
+               <Location
+                  uuid = "24958E5E-1913-4715-834A-CAF0996EC78D - d158f112260804d6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Result&lt;(), Swift.Error&gt;) -&gt; () in NewsApp.SceneDelegate.startLogoutTimerIfNeeded() -&gt; ()"
+                  moduleName = "NewsApp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/ichsanwahyudi/Documents/Projects/iOS/news-app/NewsApp/NewsApp/SceneDelegate.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "84"
+                  endingLineNumber = "84"
+                  offsetFromSymbolStart = "80">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4D1F9475-3B1B-4D1E-B68D-9527CDBE5204"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NewsApp/SceneDelegate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "88"
+            endingLineNumber = "88"
+            landmarkName = "startLogoutTimerIfNeeded()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

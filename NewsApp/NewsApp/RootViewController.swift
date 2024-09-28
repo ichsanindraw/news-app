@@ -70,8 +70,9 @@ final class RootViewController: UIViewController {
     }
     
     private func setupNavigationTitle() {
+        let userData = UserManager.shared.getUserData()
         let titleLabel = UILabel()
-        titleLabel.text = "\(getGreeting()), Ichsan Indra Wahyudi"
+        titleLabel.text = "\(getGreeting()), \(userData?.name ?? "")"
         titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
         titleLabel.textColor = .red
         
@@ -326,8 +327,11 @@ extension RootViewController: UICollectionViewDataSource {
             
         case .blog:
             cell.configure(title: "Blog", onSeeMoreTapped: { [weak self] in
-                let viewController = BlogViewController()
-                self?.navigationController?.pushViewController(viewController, animated: true)
+                UserManager.shared.logout { _ in
+                    
+                }
+//                let viewController = BlogViewController()
+//                self?.navigationController?.pushViewController(viewController, animated: true)
             })
             
         case .report:

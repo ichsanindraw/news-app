@@ -48,12 +48,17 @@ func extractFirstSentence(from text: String) -> String {
     return text
 }
 
-extension String {
-    func isValidEmail() -> Bool {
-        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        return NSPredicate(format: "SELF MATCHES %@", emailRegEx).evaluate(with: self)
-    }
+func isValidEmail(_ email: String) -> Bool {
+    let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+    return NSPredicate(format: "SELF MATCHES %@", emailRegEx).evaluate(with: email)
 }
+
+//extension String {
+//    func isValidEmail() -> Bool {
+//        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+//        return NSPredicate(format: "SELF MATCHES %@", emailRegEx).evaluate(with: self)
+//    }
+//}
 
 func saveRecentSearch(query: String) {
     var recentSearches = UserDefaults.standard.stringArray(forKey: Constants.recentSearchKey) ?? []
@@ -71,6 +76,17 @@ func saveRecentSearch(query: String) {
     UserDefaults.standard.set(recentSearches, forKey: Constants.recentSearchKey)
 }
 
+func getAuth0Configuration() -> (clientId: String?, domain: String?) {
+    guard let path = Bundle.main.path(forResource: "Auth0", ofType: "plist"),
+          let plist = NSDictionary(contentsOfFile: path) else {
+        return (nil, nil)
+    }
+
+    let clientId = plist["ClientId"] as? String
+    let domain = plist["Domain"] as? String
+
+    return (clientId, domain)
+}
 
 func requestNotificationPermissions() {
     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
@@ -109,14 +125,5 @@ func sendLogoutNotification() {
                 }
             }
         }
-    }
-}
-
-func logout() {
-    UserDefaults.standard.removeObject(forKey: Constants.lastLoginTimeKey)
-    UserDefaults.standard.removeObject(forKey: Constants.loggedInUserDataKey)
-    
-    DispatchQueue.main.async {
-        sendLogoutNotification()
     }
 }

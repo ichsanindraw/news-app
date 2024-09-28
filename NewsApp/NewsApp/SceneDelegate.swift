@@ -53,7 +53,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIApplicationDelegate {
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        print(">>> sceneDidBecomeActive")
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
         startLogoutTimerIfNeeded()
@@ -76,12 +75,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIApplicationDelegate {
     }
 
     func startLogoutTimerIfNeeded() {
+        print(">>> startLogoutTimerIfNeeded")
         // Check if the login time is saved in UserDefaults
         if let loginTime = UserDefaults.standard.object(forKey: Constants.lastLoginTimeKey) as? Date {
             let timeInterval = Date().timeIntervalSince(loginTime)
         
             if timeInterval >= Constants.loginDuration {
-                logout()
+                UserManager.shared.logout(completion: { result in
+                    print(">>> result: startLogoutTimerIfNeeded if \(result)")
+                })
             } else {
                 let remainingTime = Constants.loginDuration - timeInterval
                 logoutTimer = Timer.scheduledTimer(withTimeInterval: remainingTime, repeats: false) { [weak self] _ in
@@ -89,7 +91,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIApplicationDelegate {
                     
                     print(">>> startLogoutTimerIfNeeded -> timeInterval: \(timeInterval)")
                     
-                    logout()
+                    UserManager.shared.logout(completion: { result in
+                        print(">>> result startLogoutTimerIfNeeded else: \(result)")
+                    })
                 }
             }
         }
@@ -101,3 +105,6 @@ extension SceneDelegate: UNUserNotificationCenterDelegate {
         completionHandler([.banner, .sound])
     }
 }
+
+//ichsanindraw@gmail.com
+// Balikpapan29

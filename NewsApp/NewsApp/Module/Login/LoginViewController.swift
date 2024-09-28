@@ -21,8 +21,8 @@ final class LoginViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 2
-        label.text = "LOGIN"
-        label.font = .systemFont(ofSize: 20, weight: .bold)
+        label.text = "Register / Login"
+        label.font = .systemFont(ofSize: 32, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -43,25 +43,30 @@ final class LoginViewController: UIViewController {
         return textField
     }()
     
-    private let errorLabel: UILabel = {
+    private let registerButton: UIButton = {
+        let button = UIButton(type: .roundedRect)
+        button.setTitle("REGISTER", for: .normal)
+        button.backgroundColor = UIColor.systemBlue
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 10
+        button.isEnabled = false
+        return button
+    }()
+    
+    private let orLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .red
+        label.text = "or"
         label.textAlignment = .center
-        label.numberOfLines = 0
         return label
     }()
     
     private let loginButton: UIButton = {
         let button = UIButton(type: .roundedRect)
-        button.setTitle("Login", for: .normal)
-//        button.isEnabled = false
+        button.setTitle("LOGIN", for: .normal)
+        button.backgroundColor = UIColor.systemBlue
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 10
         return button
-    }()
-    
-    private let loadingIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .medium)
-        indicator.hidesWhenStopped = true
-        return indicator
     }()
     
     private var viewModel = LoginViewModel()
@@ -82,26 +87,30 @@ final class LoginViewController: UIViewController {
         
         setupUI()
         bindViewModel()
+        bindAction()
     }
     
     private func setupUI() {
         stackView.addArrangedSubview(titleLabel)
         stackView.addArrangedSubview(emailTextField)
         stackView.addArrangedSubview(passwordTextField)
+        stackView.addArrangedSubview(registerButton)
+        stackView.addArrangedSubview(orLabel)
         stackView.addArrangedSubview(loginButton)
-        stackView.addArrangedSubview(errorLabel)
-        stackView.addArrangedSubview(loadingIndicator)
 
         view.addSubview(stackView)
         
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
         ])
         
-        loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
+        emailTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        passwordTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        registerButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        loginButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
     }
     
     private func bindViewModel() {
@@ -111,26 +120,37 @@ final class LoginViewController: UIViewController {
         passwordTextField.textPublisher
             .assign(to: &viewModel.$password)
         
-        viewModel.$isLoginEnabled
+        viewModel.$isButtonEnabled
             .receive(on: DispatchQueue.main)
-            .assign(to: \.isEnabled, on: loginButton)
+            .sink { [weak self] isEnabled in
+                guard let self else { return }
+                self.loginButton.isEnabled = isEnabled
+                self.registerButton.isEnabled = isEnabled
+                self.loginButton.backgroundColor = isEnabled ? UIColor.systemBlue : UIColor.lightGray
+                self.registerButton.backgroundColor = isEnabled ? UIColor.systemBlue : UIColor.lightGray
+            }
             .store(in: &cancellables)
         
         viewModel.$isLoading
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] isLoading in
+            .sink { isLoading in
                 if isLoading {
-                    self?.loadingIndicator.startAnimating()
-                    self?.loginButton.isEnabled = false
+                    SwiftOverlays.showBlockingWaitOverlay()
                 } else {
-                    self?.loadingIndicator.stopAnimating()
+                    SwiftOverlays.removeAllBlockingOverlays()
                 }
             }
             .store(in: &cancellables)
         
         viewModel.$errorMessage
             .receive(on: DispatchQueue.main)
-            .assign(to: \.text, on: errorLabel)
+            .compactMap { $0 }
+            .sink { [weak self] message in
+                self?.showErrorAlert(
+                    title: "Authentication Failed",
+                    message: message
+                )
+            }
             .store(in: &cancellables)
         
         viewModel.$isLoggedIn
@@ -143,17 +163,51 @@ final class LoginViewController: UIViewController {
             .store(in: &cancellables)
     }
     
-    @objc private func loginButtonTapped() {
-        viewModel.login()
+    private func bindAction() {
+        registerButton.addTarget(
+            self,
+            action: #selector(registerButtonTapped),
+            for: .touchUpInside
+        
+        )
+        
+        loginButton.addTarget(
+            self,
+            action: #selector(loginButtonTapped),
+            for: .touchUpInside
+        )
     }
     
-    func requestNotificationPermissions() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if granted {
-                print("Permission granted")
-            } else if let error = error {
-                print("Permission denied: \(error.localizedDescription)")
-            }
+    @objc private func registerButtonTapped() {
+        if viewModel.isEmailValid {
+            viewModel.signUp()
+        } else {
+            showErrorAlert(
+                title: "Invalid Email",
+                message: "Please enter a valid email address."
+            )
         }
+    }
+    
+    @objc private func loginButtonTapped() {
+        if viewModel.isEmailValid {
+            viewModel.signIn()
+        } else {
+            showErrorAlert(
+                title: "Invalid Email",
+                message: "Please enter a valid email address."
+            )
+        }
+    }
+    
+    private func showErrorAlert(title: String, message: String) {
+        let alert = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
     }
 }
