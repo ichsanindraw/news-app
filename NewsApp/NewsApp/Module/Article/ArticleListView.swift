@@ -92,7 +92,6 @@ extension ArticleListView: UICollectionViewDataSource, UICollectionViewDelegate,
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print(">>> total data: \(data.count)")
         return data.count
     }
     

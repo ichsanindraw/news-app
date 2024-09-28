@@ -17,8 +17,3 @@ struct Constants {
     // 10 menit
     static let loginDuration: Double = 6000 // 600
 }
-
-extension Notification.Name {
-    static let userDidLogin = Notification.Name("userDidLoginNotification")
-    static let userDidLogout = Notification.Name("userDidLoginNotification")
-}

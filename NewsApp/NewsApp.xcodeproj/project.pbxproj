@@ -43,6 +43,7 @@
 		97EE8E922CA8584B00581459 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E912CA8584A00581459 /* User.swift */; };
 		97EE8E952CA8594F00581459 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 97EE8E942CA8594F00581459 /* KeychainAccess */; };
 		97EE8E972CA85B8500581459 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E962CA85B8500581459 /* KeychainManager.swift */; };
+		97EE8E992CA86C6300581459 /* AuthTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E982CA86C6300581459 /* AuthTarget.swift */; };
 		97FD71122CA444FD005C8D46 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FD71112CA444FD005C8D46 /* AppDelegate.swift */; };
 		97FD71142CA444FD005C8D46 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FD71132CA444FD005C8D46 /* SceneDelegate.swift */; };
 		97FD71162CA444FD005C8D46 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FD71152CA444FD005C8D46 /* ViewController.swift */; };
@@ -103,6 +104,7 @@
 		97EE8E8F2CA8382A00581459 /* SwiftOverlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftOverlays.swift; sourceTree = "<group>"; };
 		97EE8E912CA8584A00581459 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		97EE8E962CA85B8500581459 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		97EE8E982CA86C6300581459 /* AuthTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthTarget.swift; sourceTree = "<group>"; };
 		97FD710E2CA444FD005C8D46 /* NewsApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NewsApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97FD71112CA444FD005C8D46 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		97FD71132CA444FD005C8D46 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 				97EE8E8C2CA8293500581459 /* ViewModel */,
 				97FD71282CA461B4005C8D46 /* Model */,
 				97EE8E462CA538CE00581459 /* NewsTarget.swift */,
+				97EE8E982CA86C6300581459 /* AuthTarget.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -481,6 +484,7 @@
 				97EE8E902CA8382A00581459 /* SwiftOverlays.swift in Sources */,
 				97EE8E592CA7001D00581459 /* NewsService.swift in Sources */,
 				97FD712F2CA464FD005C8D46 /* Article.swift in Sources */,
+				97EE8E992CA86C6300581459 /* AuthTarget.swift in Sources */,
 				97EE8E802CA7BEEB00581459 /* ReportViewController.swift in Sources */,
 				97EE8E7B2CA7BAE400581459 /* BlogListView.swift in Sources */,
 				97EE8E522CA6D58900581459 /* RecentSearchView.swift in Sources */,

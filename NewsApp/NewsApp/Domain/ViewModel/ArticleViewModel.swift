@@ -41,7 +41,6 @@ class ArticleViewModel {
     private func resetState() {
         currentPage = 1
         totalResults = 0
-//        articlesViewState = .success([]) // reset the old data first
         articlesViewState = .loading
     }
     
@@ -72,8 +71,6 @@ class ArticleViewModel {
 
             }, receiveValue: { [weak self] data in
                 self?.totalResults = data.count
-                
-                print(">>> results: \(data.results.count)")
                    
                 if case let .success(currentData) = self?.articlesViewState {
                     // When fetching subsequent pages, append the new data
@@ -104,10 +101,7 @@ class ArticleViewModel {
             .store(in: &cancellables)
     }
     
-    func getRecentSearches() -> [String] {
-        // TODO: for testing remove recent search
-//        UserDefaults.standard.removeObject(forKey: Constants.recentSearchKey)
-        
+    func getRecentSearches() -> [String] {        
         recentSearch = UserDefaults.standard.stringArray(forKey: Constants.recentSearchKey) ?? []
         return recentSearch
     }

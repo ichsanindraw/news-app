@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import UIKit
 import Kingfisher
+import UIKit
 
 final class ThumbnailViewCell: UICollectionViewCell {
     struct Data {
@@ -16,6 +16,14 @@ final class ThumbnailViewCell: UICollectionViewCell {
         let launches: [String] = []
         let events: [String] = []
     }
+    
+    private let stackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .vertical
+        view.spacing = 8
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     private let imageView: UIImageView = {
         let view = UIImageView()
@@ -33,10 +41,16 @@ final class ThumbnailViewCell: UICollectionViewCell {
         return label
     }()
     
-    private let launcheLabel: UILabel = {
+    private let launchLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 2
-        label.text = "Launches"
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let eventLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -57,7 +71,14 @@ final class ThumbnailViewCell: UICollectionViewCell {
         imageView.image = nil
         titleLabel.text = nil
         
-        launcheLabel.removeFromSuperview()
+        // Remove launchLabel to avoid showing stale data
+        if stackView.subviews.contains(launchLabel) {
+            stackView.removeArrangedSubview(launchLabel)
+        }
+        
+        if stackView.subviews.contains(eventLabel) {
+            stackView.removeArrangedSubview(eventLabel)
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -65,25 +86,35 @@ final class ThumbnailViewCell: UICollectionViewCell {
     }
     
     private func setupUI() {
-//        backgroundColor = .blue
         
-        addSubview(imageView)
-        addSubview(titleLabel)
+        addSubview(stackView)
         
         NSLayoutConstraint.activate([
-           imageView.topAnchor.constraint(equalTo: topAnchor),
-           imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-           imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-           
-           titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 16),
-           titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-           titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-           titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-       ])
+            stackView.topAnchor.constraint(equalTo: topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+        
+        stackView.addArrangedSubview(imageView)
+        stackView.addArrangedSubview(titleLabel)
+        
+        imageView.heightAnchor.constraint(lessThanOrEqualToConstant: 200).isActive = true
+        
+        // Prevent the title from being compressed
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
     }
     
     func configure(data: ThumbnailViewCell.Data) {
-        if let url = URL(string: data.imageUrl) {
+        let launches = data.launches
+        let events = data.events
+        
+        let secureImageUrl = data.imageUrl.replacingOccurrences(of: "http://", with: "https://")
+        
+        if !secureImageUrl.isEmpty, let url = URL(string: secureImageUrl) {
+            imageView.kf.setImage(with: url)
+        } else if let url = URL(string: "https://placehold.co/600x400?font=roboto&text=Image\nNot\nFound") {
             imageView.kf.setImage(with: url)
         } else {
             // set a placeholder image if URL is invalid
@@ -92,14 +123,14 @@ final class ThumbnailViewCell: UICollectionViewCell {
         
         titleLabel.text = data.title
         
-        if !data.launches.isEmpty {
-            addSubview(launcheLabel)
-            
-            NSLayoutConstraint.activate([
-                launcheLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor),
-                launcheLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-                launcheLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            ])
+        if !launches.isEmpty, !stackView.subviews.contains(launchLabel) {
+            stackView.addArrangedSubview(launchLabel)
+            launchLabel.text = "Launches: \(launches.map { $0 }.joined(separator: ","))"
+        }
+        
+        if !events.isEmpty, !stackView.subviews.contains(eventLabel) {
+            stackView.addArrangedSubview(eventLabel)
+            eventLabel.text = "Events: \(launches.map { $0 }.joined(separator: ","))"
         }
     }
 }

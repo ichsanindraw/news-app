@@ -79,7 +79,6 @@ final class ArticleViewController: UIViewController {
                 case .error(_):
                     break
                 case let .success(data):
-                    print(">>> iewModel.$articlesViewState \(data.count)")
                     self?.articleListView.updateData(data)
                 }
             }
