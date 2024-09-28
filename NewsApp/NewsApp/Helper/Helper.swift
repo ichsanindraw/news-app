@@ -127,3 +127,8 @@ func sendLogoutNotification() {
         }
     }
 }
+
+enum HTTPMethod: String {
+    case get = "GET"
+    case post = "POST"
+}

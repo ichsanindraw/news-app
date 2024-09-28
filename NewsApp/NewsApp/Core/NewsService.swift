@@ -34,7 +34,6 @@ protocol NewsServiceProtocol {
 
 class NewsService: NewsServiceProtocol {
     private let networkManager = NetworkManager()
-    private var cancellables = Set<AnyCancellable>()
     
     func getArticle(_ limit: Int, _ offset: Int?, _ query: String, _ category: String) -> AnyPublisher<BaseResponse<[Article]>, Error> {
         return networkManager.request(.getArticles(

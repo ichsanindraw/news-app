@@ -113,6 +113,75 @@ public class NetworkManager: NSObject, URLSessionDelegate {
         }
     }
     
+    // MARK: For Authentication
+    
+    public func request<S: Decodable, E: Decodable>(
+        _ target: AuthTarget,
+        _ responseType: S.Type,
+        _ errorType: E.Type
+    ) -> AnyPublisher<AuthResult<S, E>, Error> {
+        guard let urlRequest = createRequest(for: target) else {
+            return Fail(error: NetworkError.invalidResponse).eraseToAnyPublisher()
+        }
+        
+        let jsonDecoder = JSONDecoder()
+        jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        return URLSession.shared.dataTaskPublisher(for: urlRequest)
+            .tryMap { (data, response) -> Data in
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    throw NetworkError.invalidResponse
+                }
+                
+                // Print the raw response as a string (for debugging purposes)
+                let jsonString = String(data: data, encoding: .utf8)
+                print("Raw response: \(jsonString ?? "No Data")")
+                
+                if (200...299).contains(httpResponse.statusCode) {
+                    return data
+                } else {
+                    throw try jsonDecoder.decode(E.self, from: data)
+                }
+            }
+            .decode(type: S.self, decoder: jsonDecoder)
+            .map { .success($0) }
+            .catch { error -> AnyPublisher<AuthResult, Error> in
+                guard  let errorResponse = error as? E else {
+                    return Fail(error: error).eraseToAnyPublisher()
+                }
+                
+                return Just(.failure(errorResponse))
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    private func createRequest(for target: AuthTarget) -> URLRequest? {
+        guard var components = URLComponents(string: "\(target.baseUrl)/\(target.path)") else {
+            return nil
+        }
+        
+        components.queryItems = target.queryParameters?.map { key, value in
+            URLQueryItem(name: key, value: "\(value)")
+        }
+        
+        guard let url = components.url else {
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = target.method.rawValue
+        request.allHTTPHeaderFields = target.headers
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let accessToken = KeychainManager.shared.getAccessToken() {
+            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        }
+        
+        return request
+    }
+    
     public func signup(email: String, password: String) -> AnyPublisher<RegisterResult, Error> {
         let auth0Config = getAuth0Configuration()
         

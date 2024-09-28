@@ -7,9 +7,28 @@
 
 import Foundation
 
+public enum AuthResult<S: Decodable, E: Decodable & Error>: Decodable {
+    case success(S?)
+    case failure(E)
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        
+        // Attempt to decode the success case first
+        if let successData = try? container.decode(S.self) {
+            self = .success(successData)
+        } else {
+            let errorData = try container.decode(E.self)
+            self = .failure(errorData)
+        }
+    }
+}
+
+public struct Empty: Decodable & Error {}
+
 // MARK: Login
 
-public enum LoginResult {
+public enum LoginResult: Codable {
     case success(LoginSuccessResponse)
     case failure(LoginErrorResponse)
 }
@@ -27,7 +46,7 @@ public struct LoginErrorResponse: Codable, Error {
 
 // MARK: Register
 
-public enum RegisterResult {
+public enum RegisterResult: Codable {
     case success(RegisterSuccessResponse)
     case failure(RegisterErrorResponse)
 }
