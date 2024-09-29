@@ -18,24 +18,34 @@ class ArticleViewModel {
     private var totalResults = 0
     private var searchQuery = ""
     private var category = ""
+    private var sortBy: SortBy = .asc
     private var cancellables = Set<AnyCancellable>()
     
     private let newsService: NewsServiceProtocol
     
     init(newsService: NewsServiceProtocol = NewsService()) {
         self.newsService = newsService
+        
+        getArticles(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
+        getCategories()
+    }
+    
+    func sorted() {
+        sortBy = sortBy == .asc ? .desc : .asc
+        resetState()
+        getArticles(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
     
     func filterBy(category: String) {
         resetState()
-        getArticles(query: searchQuery, category: category, page: currentPage)
+        getArticles(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
     
     func searchArticles(query: String) {
         resetState()
         searchQuery = query
         saveRecentSearch(query: query)
-        getArticles(query: query, category: category, page: currentPage)
+        getArticles(query: query, category: category, page: currentPage, sortBy: sortBy)
     }
 
     private func resetState() {
@@ -54,11 +64,11 @@ class ArticleViewModel {
         
         currentPage += 1
         isLoadMore = true
-        getArticles(query: searchQuery, category: category, page: currentPage)
+        getArticles(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
 
-    func getArticles(query: String = "", category: String = "", page: Int = 1) {
-        newsService.getArticle(10, currentPage, searchQuery, category)
+    func getArticles(query: String, category: String, page: Int, sortBy: SortBy) {
+        newsService.getArticle(10, currentPage, searchQuery, category, sortBy)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoadMore = false
                 

@@ -18,6 +18,7 @@ class ReportViewModel {
     private var totalResults = 0
     private var searchQuery = ""
     private var category = ""
+    private var sortBy: SortBy = .asc
     private var cancellables = Set<AnyCancellable>()
     
     private let newsService: NewsServiceProtocol
@@ -26,16 +27,22 @@ class ReportViewModel {
         self.newsService = newsService
     }
     
+    func sorted() {
+        sortBy = sortBy == .asc ? .desc : .asc
+        resetState()
+        getReports(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
+    }
+    
     func filterBy(category: String) {
         resetState()
-        getReports(query: searchQuery, category: category, page: currentPage)
+        getReports(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
     
     func searchArticles(query: String) {
         resetState()
         searchQuery = query
         saveRecentSearch(query: query)
-        getReports(query: query, category: category, page: currentPage)
+        getReports(query: query, category: category, page: currentPage, sortBy: sortBy)
     }
 
     private func resetState() {
@@ -54,11 +61,11 @@ class ReportViewModel {
         
         currentPage += 1
         isLoadMore = true
-        getReports(query: searchQuery, category: category, page: currentPage)
+        getReports(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
 
-    func getReports(query: String = "", category: String = "", page: Int = 1) {
-        newsService.getReport(10, currentPage, searchQuery, category)
+    func getReports(query: String, category: String, page: Int, sortBy: SortBy) {
+        newsService.getReport(10, currentPage, searchQuery, category, sortBy)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoadMore = false
                 

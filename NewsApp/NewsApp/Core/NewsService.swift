@@ -12,21 +12,24 @@ protocol NewsServiceProtocol {
         _ limit: Int,
         _ offset: Int?,
         _ query: String,
-        _ category: String
+        _ category: String,
+        _ sortBy: SortBy
     ) -> AnyPublisher<BaseResponse<[Article]>, Error>
     
     func getBlog(
         _ limit: Int,
         _ offset: Int?,
         _ query: String,
-        _ category: String
+        _ category: String,
+        _ sortBy: SortBy
     ) -> AnyPublisher<BaseResponse<[Blog]>, Error>
     
     func getReport(
         _ limit: Int,
         _ offset: Int?,
         _ query: String,
-        _ category: String
+        _ category: String,
+        _ sortBy: SortBy
     ) -> AnyPublisher<BaseResponse<[Report]>, Error>
     
     func getCategories() -> AnyPublisher<Category, Error>
@@ -45,30 +48,33 @@ class NewsService: NewsServiceProtocol {
         self.userManager = userManager
     }
     
-    func getArticle(_ limit: Int, _ offset: Int?, _ query: String, _ category: String) -> AnyPublisher<BaseResponse<[Article]>, Error> {
+    func getArticle(_ limit: Int, _ offset: Int?, _ query: String, _ category: String, _ sortBy: SortBy) -> AnyPublisher<BaseResponse<[Article]>, Error> {
         return networkManager.request(.getArticles(
             limit: limit,
             offset: offset,
             query: query,
-            category: category
+            category: category,
+            sortBy: sortBy
         ), BaseResponse<[Article]>.self)
     }
     
-    func getBlog(_ limit: Int, _ offset: Int?, _ query: String, _ category: String) -> AnyPublisher<BaseResponse<[Blog]>, Error> {
+    func getBlog(_ limit: Int, _ offset: Int?, _ query: String, _ category: String, _ sortBy: SortBy) -> AnyPublisher<BaseResponse<[Blog]>, Error> {
         return networkManager.request(.getBlogs(
             limit: limit,
             offset: offset,
             query: query,
-            category: category
+            category: category,
+            sortBy: sortBy
         ), BaseResponse<[Blog]>.self)
     }
     
-    func getReport(_ limit: Int, _ offset: Int?, _ query: String, _ category: String) -> AnyPublisher<BaseResponse<[Report]>, Error> {
+    func getReport(_ limit: Int, _ offset: Int?, _ query: String, _ category: String, _ sortBy: SortBy) -> AnyPublisher<BaseResponse<[Report]>, Error> {
         return networkManager.request(.getReports(
             limit: limit,
             offset: offset,
             query: query,
-            category: category
+            category: category,
+            sortBy: sortBy
         ), BaseResponse<[Report]>.self)
     }
     

@@ -60,12 +60,21 @@ final class ReportViewController: UIViewController {
         searchBar.delegate = self
         scrollView.delegate = self
         
+        setupNavigationBar()
         bindViewModel()
         bindAction()
         setupUI()
+    }
+    
+    private func setupNavigationBar() {
+        let rightBarButton = UIBarButtonItem(
+            title: "Sort",
+            style: .plain,
+            target: self,
+            action: #selector(rightBarButtonTapped)
+        )
         
-        viewModel.getReports()
-        viewModel.getCategories()
+        navigationItem.rightBarButtonItem = rightBarButton
     }
     
     private func bindViewModel() {
@@ -178,16 +187,8 @@ final class ReportViewController: UIViewController {
         ])
     }
     
-    private func hideSearchBar() {
-        UIView.animate(withDuration: 0.3, animations: {
-            self.searchBar.transform = CGAffineTransform(translationX: 0, y: -self.searchBar.bounds.height)
-        })
-    }
-    
-    private func showSearchBar() {
-        UIView.animate(withDuration: 0.3, animations: {
-            self.searchBar.transform = .identity
-        })
+    @objc func rightBarButtonTapped() {
+        viewModel.sorted()
     }
 }
 

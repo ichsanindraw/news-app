@@ -18,24 +18,34 @@ class BlogViewModel {
     private var totalResults = 0
     private var searchQuery = ""
     private var category = ""
+    private var sortBy: SortBy = .asc
     private var cancellables = Set<AnyCancellable>()
     
     private let newsService: NewsServiceProtocol
     
     init(newsService: NewsServiceProtocol = NewsService()) {
         self.newsService = newsService
+        
+        getBlogs(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
+        getCategories()
+    }
+    
+    func sorted() {
+        sortBy = sortBy == .asc ? .desc : .asc
+        resetState()
+        getBlogs(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
     
     func filterBy(category: String) {
         resetState()
-        getBlogs(query: searchQuery, category: category, page: currentPage)
+        getBlogs(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
     
     func searchArticles(query: String) {
         resetState()
         searchQuery = query
         saveRecentSearch(query: query)
-        getBlogs(query: query, category: category, page: currentPage)
+        getBlogs(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
 
     private func resetState() {
@@ -54,11 +64,11 @@ class BlogViewModel {
         
         currentPage += 1
         isLoadMore = true
-        getBlogs(query: searchQuery, category: category, page: currentPage)
+        getBlogs(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
 
-    func getBlogs(query: String = "", category: String = "", page: Int = 1) {
-        newsService.getBlog(10, currentPage, searchQuery, category)
+    func getBlogs(query: String, category: String, page: Int, sortBy: SortBy) {
+        newsService.getBlog(10, currentPage, searchQuery, category, sortBy)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoadMore = false
                 

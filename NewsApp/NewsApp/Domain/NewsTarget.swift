@@ -8,9 +8,9 @@
 import Foundation
 
 enum NewsTarget {
-    case getArticles(limit: Int?, offset: Int?, query: String, category: String)
-    case getBlogs(limit: Int?, offset: Int?, query: String, category: String)
-    case getReports(limit: Int?, offset: Int?, query: String, category: String)
+    case getArticles(limit: Int?, offset: Int?, query: String, category: String, sortBy: SortBy)
+    case getBlogs(limit: Int?, offset: Int?, query: String, category: String, sortBy: SortBy)
+    case getReports(limit: Int?, offset: Int?, query: String, category: String, sortBy: SortBy)
     case getCategories
     
     var path: String {
@@ -35,28 +35,31 @@ enum NewsTarget {
     
     var queryParameters: [String: Any]? {
         switch self {
-        case let .getArticles(limit, offset, query, category):
+        case let .getArticles(limit, offset, query, category, sortBy):
             return getParams(
                 limit: limit,
                 offset: offset,
                 query: query,
-                category: category
+                category: category,
+                sortBy: sortBy
             )
             
-        case let .getBlogs(limit, offset, query, category):
+        case let .getBlogs(limit, offset, query, category, sortBy):
             return getParams(
                 limit: limit,
                 offset: offset,
                 query: query,
-                category: category
+                category: category,
+                sortBy: sortBy
             )
             
-        case let .getReports(limit, offset, query, category):
+        case let .getReports(limit, offset, query, category, sortBy):
             return getParams(
                 limit: limit,
                 offset: offset,
                 query: query,
-                category: category
+                category: category,
+                sortBy: sortBy
             )
             
         case .getCategories:
@@ -64,7 +67,7 @@ enum NewsTarget {
         }
     }
     
-    func getParams(limit: Int?, offset: Int?, query: String, category: String) -> [String: Any]? {
+    func getParams(limit: Int?, offset: Int?, query: String, category: String, sortBy: SortBy) -> [String: Any]? {
         var variables: [String: Any]? = [:]
         
         if let limit {
@@ -82,6 +85,17 @@ enum NewsTarget {
         if !category.isEmpty {
             variables?["news_site"] = category
         }
+        
+        let order: String
+        
+        switch sortBy {
+        case .asc:
+            order = "published"
+        case .desc:
+            order = "-published"
+        }
+        
+        variables?["ordering"] = order
         
         return variables
     }

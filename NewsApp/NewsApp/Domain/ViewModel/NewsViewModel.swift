@@ -30,7 +30,7 @@ class NewsViewModel {
     ) {
         articlesViewState = .loading
         
-        newsService.getArticle(limit, offset, query, category)
+        newsService.getArticle(limit, offset, query, category, .asc)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
                 case .finished:
@@ -53,7 +53,7 @@ class NewsViewModel {
     ) {
         blogsViewState = .loading
         
-        newsService.getBlog(limit, offset, query, category)
+        newsService.getBlog(limit, offset, query, category, .asc)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
                 case .finished:
@@ -76,7 +76,7 @@ class NewsViewModel {
     ) {
         reportsViewState = .loading
         
-        newsService.getReport(limit, offset, query, category)
+        newsService.getReport(limit, offset, query, category, .asc)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
                 case .finished:
