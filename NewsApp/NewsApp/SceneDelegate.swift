@@ -75,25 +75,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIApplicationDelegate {
     }
 
     func startLogoutTimerIfNeeded() {
-        print(">>> startLogoutTimerIfNeeded")
         // Check if the login time is saved in UserDefaults
         if let loginTime = UserDefaults.standard.object(forKey: Constants.lastLoginTimeKey) as? Date {
             let timeInterval = Date().timeIntervalSince(loginTime)
         
             if timeInterval >= Constants.loginDuration {
-                UserManager.shared.logout(completion: { result in
-                    print(">>> result: startLogoutTimerIfNeeded if \(result)")
-                })
+                UserManager.shared.logout(shouldNotif: true)
             } else {
                 let remainingTime = Constants.loginDuration - timeInterval
                 logoutTimer = Timer.scheduledTimer(withTimeInterval: remainingTime, repeats: false) { [weak self] _ in
                     self?.logoutTimer?.invalidate()
                     
-                    print(">>> startLogoutTimerIfNeeded -> timeInterval: \(timeInterval)")
-                    
-                    UserManager.shared.logout(completion: { result in
-                        print(">>> result startLogoutTimerIfNeeded else: \(result)")
-                    })
+                    UserManager.shared.logout(shouldNotif: true)
                 }
             }
         }
@@ -105,6 +98,3 @@ extension SceneDelegate: UNUserNotificationCenterDelegate {
         completionHandler([.banner, .sound])
     }
 }
-
-//ichsanindraw@gmail.com
-// Balikpapan29

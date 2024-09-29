@@ -14,7 +14,7 @@ public enum AuthTarget {
     case getUserInfo
     
     var baseUrl: String {
-        return "https://\(getAuth0Configuration().domain)" 
+        return "https://\(UserManager.shared.getAuth0Configuration().domain ?? "")" 
     }
     
     var path: String {

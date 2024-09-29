@@ -18,13 +18,13 @@ class LoginViewModel {
     @Published var errorMessage: String?
     @Published var isLoggedIn: Bool = false
     
-    @Published var accessToken: String = ""
-    
     private var logoutTimer: Timer?
-    private let networkManager = NetworkManager()
     private var cancellables = Set<AnyCancellable>()
     
-    init() {
+    private let authService: AuthServiceProtocol
+    
+    init(authService: AuthServiceProtocol = AuthService()) {
+        self.authService = authService
         validateInputs()
     }
     
@@ -41,10 +41,12 @@ class LoginViewModel {
             .store(in: &cancellables)
     }
     
-    func signUp() {
+    func register() {
         isLoading = true
         
-        networkManager.signup(email: email, password: password)
+        let userManager = UserManager.shared.getAuth0Configuration()
+        
+        authService.register(userManager.clientId ?? "", email, password)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.isLoading = false
@@ -53,14 +55,12 @@ class LoginViewModel {
                     break
                 case let .failure(error):
                     self?.errorMessage = error.localizedDescription
-                    print("Register error: \(error)")
                 }
             } receiveValue: { [weak self] result in
                 switch result {
                 case let .success(response):
-                    print("Register successful: \(response)")
                     // auto login
-                    self?.signIn()
+                    self?.login()
                 case let .failure(error):
                     self?.errorMessage = error.message
                 }
@@ -68,15 +68,18 @@ class LoginViewModel {
             .store(in: &cancellables)
     }
     
-    func signIn() {
+    func login() {
         isLoading = true
         
-        networkManager.signIn(email: email, password: password)
+        let userManager = UserManager.shared.getAuth0Configuration()
+        
+        authService.login(userManager.clientId ?? "", email, password)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
+                self?.isLoading = false
+                
                 switch completion {
                 case .finished:
-                    self?.isLoading = false
                     break
                 case let .failure(error):
                     self?.errorMessage = error.localizedDescription
@@ -84,12 +87,6 @@ class LoginViewModel {
             } receiveValue: { [weak self] result in
                 switch result {
                 case let .success(response):
-                    print("Login successful: \(response)")
-//                    let data = try decodeJWT(response.idToken)
-//                    print("data: \(data)")
-//                    self?.saveStoredUserData(StoredUserData(email: "email", name: "ichsan"))
-//                    self?.startAutoLogoutTimer()
-//                    self?.isLoggedIn = true
                     KeychainManager.shared.saveAccessToken(token: response.accessToken)
                     self?.userInfo()
                 case let .failure(error):
@@ -98,23 +95,31 @@ class LoginViewModel {
             }
             .store(in: &cancellables)
     }
-    
+
     func userInfo() {
-        networkManager.userInfo()
+        authService.getUserInfo()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
+                self?.isLoading = false
+                
                 switch completion {
                 case .finished:
-//                    self?.isLoading = false
                     break
                 case let .failure(error):
                     self?.errorMessage = error.localizedDescription
                 }
-            } receiveValue: { [weak self] response in
-                print(">>> get user info success: \(response)")
-                self?.saveStoredUserData(StoredUserData(email: "email", name: response.nickname))
-                self?.startAutoLogoutTimer()
-                self?.isLoggedIn = true
+            } receiveValue: { [weak self] result in
+                switch result {
+                case let .success(response):
+                    self?.saveStoredUserData(StoredUserData(
+                        email: response.email,
+                        name: response.nickname
+                    ))
+                    self?.startAutoLogoutTimer()
+                    self?.isLoggedIn = true
+                case let .failure(error):
+                    self?.errorMessage = error.localizedDescription
+                }
             }
             .store(in: &cancellables)
 
@@ -131,7 +136,6 @@ class LoginViewModel {
     }
     
     private func startAutoLogoutTimer() {
-        print(">>> startAutoLogoutTimer")
         logoutTimer?.invalidate()
         
         logoutTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
@@ -143,14 +147,10 @@ class LoginViewModel {
         if let lastLoginTime = UserDefaults.standard.object(forKey:  Constants.lastLoginTimeKey) as? Date {
             let elapsedTime = Date().timeIntervalSince(lastLoginTime)
             
-            print(">>> checkLogoutStatus -> elapsedTime: \(elapsedTime)")
-            
             if elapsedTime > Constants.loginDuration {
                 logoutTimer?.invalidate()
                 
-                UserManager.shared.logout(completion: { result in
-                    print(">>> result: \(result)")
-                })
+                UserManager.shared.logout(shouldNotif: true)
             }
         }
     }

@@ -30,10 +30,20 @@ protocol NewsServiceProtocol {
     ) -> AnyPublisher<BaseResponse<[Report]>, Error>
     
     func getCategories() -> AnyPublisher<Category, Error>
+    func logout(completion: (() -> Void)?)
 }
 
 class NewsService: NewsServiceProtocol {
-    private let networkManager = NetworkManager()
+    private let networkManager: NetworkManager
+    private let userManager: UserManager
+
+    init(
+        networkManager: NetworkManager = NetworkManager(),
+        userManager: UserManager = UserManager.shared
+    ) {
+        self.networkManager = networkManager
+        self.userManager = userManager
+    }
     
     func getArticle(_ limit: Int, _ offset: Int?, _ query: String, _ category: String) -> AnyPublisher<BaseResponse<[Article]>, Error> {
         return networkManager.request(.getArticles(
@@ -64,5 +74,11 @@ class NewsService: NewsServiceProtocol {
     
     func getCategories() -> AnyPublisher<Category, Error> {
         return networkManager.request(.getCategories, Category.self)
+    }
+    
+    func logout(completion: (() -> Void)? = nil) {
+        UserManager.shared.logout(shouldNotif: false, completion: { _ in
+            completion?()
+        })
     }
 }

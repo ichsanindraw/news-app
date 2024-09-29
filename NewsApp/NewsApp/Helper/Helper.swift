@@ -53,13 +53,6 @@ func isValidEmail(_ email: String) -> Bool {
     return NSPredicate(format: "SELF MATCHES %@", emailRegEx).evaluate(with: email)
 }
 
-//extension String {
-//    func isValidEmail() -> Bool {
-//        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-//        return NSPredicate(format: "SELF MATCHES %@", emailRegEx).evaluate(with: self)
-//    }
-//}
-
 func saveRecentSearch(query: String) {
     var recentSearches = UserDefaults.standard.stringArray(forKey: Constants.recentSearchKey) ?? []
         
@@ -76,54 +69,12 @@ func saveRecentSearch(query: String) {
     UserDefaults.standard.set(recentSearches, forKey: Constants.recentSearchKey)
 }
 
-func getAuth0Configuration() -> (clientId: String?, domain: String?) {
-    guard let path = Bundle.main.path(forResource: "Auth0", ofType: "plist"),
-          let plist = NSDictionary(contentsOfFile: path) else {
-        return (nil, nil)
-    }
-
-    let clientId = plist["ClientId"] as? String
-    let domain = plist["Domain"] as? String
-
-    return (clientId, domain)
-}
-
 func requestNotificationPermissions() {
     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
         if granted {
             print("Permission granted")
         } else if let error = error {
             print("Permission denied: \(error.localizedDescription)")
-        }
-    }
-}
-
-func sendLogoutNotification() {
-    let content = UNMutableNotificationContent()
-    content.title = "Session Expired"
-    content.body = "Akun Anda sudah terlogout secara otomatis setelah 10 menit."
-    content.sound = UNNotificationSound.default
-
-    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-    let request = UNNotificationRequest(identifier: "logoutNotification", content: content, trigger: trigger)
-
-    UNUserNotificationCenter.current().add(request) { error in
-        if let error = error {
-            print("Failed to send logout notification: \(error)")
-        } else {
-            print("Logout notification sent successfully.")
-            // Push the login screen
-            DispatchQueue.main.async {
-                if let sceneDelegate = UIApplication.shared.delegate as? SceneDelegate {
-                    
-                    // Initialize and set LoginViewController
-                    let loginViewController = LoginViewController()
-                    sceneDelegate.window?.rootViewController = UINavigationController(
-                        rootViewController: loginViewController
-                    )
-                    sceneDelegate.window?.makeKeyAndVisible()
-                }
-            }
         }
     }
 }

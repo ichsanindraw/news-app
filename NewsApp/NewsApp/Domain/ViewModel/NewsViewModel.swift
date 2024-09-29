@@ -12,6 +12,8 @@ class NewsViewModel {
     @Published var articlesViewState: ViewState<BaseResponse<[Article]>> = .loading
     @Published var blogsViewState: ViewState<BaseResponse<[Blog]>> = .loading
     @Published var reportsViewState: ViewState<BaseResponse<[Report]>> = .loading
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String = ""
 
     private let newsService: NewsServiceProtocol
     private var cancellables = Set<AnyCancellable>()
@@ -87,5 +89,14 @@ class NewsViewModel {
                 self?.reportsViewState = .success(data)
             })
             .store(in: &cancellables)
+    }
+    
+    func logout() {
+        isLoading = true
+        
+        newsService.logout(completion: { [weak self] in
+            self?.isLoading = false
+            print(">>> ubah loading disini")
+        })
     }
 }

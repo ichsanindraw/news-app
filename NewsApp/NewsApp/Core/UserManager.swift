@@ -7,36 +7,56 @@
 
 import Combine
 import Foundation
+import UserNotifications
+import UIKit
 
 class UserManager {
-    static let shared = UserManager()
-    
-    private let networkManager = NetworkManager()
+    static let shared = UserManager(authService: AuthService())
     private var cancellables = Set<AnyCancellable>()
+    private let authService: AuthServiceProtocol
+
+    private init(authService: AuthServiceProtocol) {
+        self.authService = authService
+    }
     
-    func logout(completion: @escaping (Result<Void, Error>) -> Void) {
-        networkManager.logout()
+    func logout(shouldNotif: Bool, completion: ((Result<Void, Error>) -> Void)? = nil) {
+        authService.logout()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                switch completion {
+            .sink { inCompletion in
+                switch inCompletion {
                 case .finished:
-//                    completion(.success(()))
                     break
                 case let .failure(error):
-                    print("Logout failed: \(error)")
-//                    completion(.failure(error))
+                    completion?(.failure(error))
                     break
                 }
-            } receiveValue: { isSuccess in
-                KeychainManager.shared.deleteAccessToken()
-                UserDefaults.standard.removeObject(forKey: Constants.lastLoginTimeKey)
-                UserDefaults.standard.removeObject(forKey: Constants.loggedInUserDataKey)
-                
-                DispatchQueue.main.async {
-                    sendLogoutNotification()
+            } receiveValue: { [weak self] result in
+                switch result {
+                case .success:
+                    self?.cleanup()
+                    completion?(.success(()))
+                    
+                    if shouldNotif {
+                        DispatchQueue.main.async { [weak self] in
+                            self?.sendLogoutNotification()
+                        }
+                    } else {
+                        self?.goToLoginPage()
+                    }
+                    
+                   
+                case let .failure(error):
+                    completion?(.failure(error))
                 }
+                
             }
             .store(in: &cancellables)
+    }
+    
+    private func cleanup() {
+        KeychainManager.shared.deleteAccessToken()
+        UserDefaults.standard.removeObject(forKey: Constants.lastLoginTimeKey)
+        UserDefaults.standard.removeObject(forKey: Constants.loggedInUserDataKey)
     }
     
     func getUserData() -> StoredUserData? {
@@ -52,5 +72,49 @@ class UserManager {
         return nil
     }
     
+    func getAuth0Configuration() -> (clientId: String?, domain: String?) {
+        guard let path = Bundle.main.path(forResource: "Auth0", ofType: "plist"),
+              let plist = NSDictionary(contentsOfFile: path) else {
+            return (nil, nil)
+        }
 
+        let clientId = plist["ClientId"] as? String
+        let domain = plist["Domain"] as? String
+
+        return (clientId, domain)
+    }
+    
+    private func sendLogoutNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Session Expired"
+        content.body = "Akun Anda sudah terlogout secara otomatis setelah 10 menit."
+        content.sound = UNNotificationSound.default
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: "logoutNotification", content: content, trigger: trigger)
+
+        UNUserNotificationCenter.current().add(request) { [weak self] error in
+            if let error = error {
+                print("Failed to send logout notification: \(error)")
+            } else {
+                print("Logout notification sent successfully.")
+                // Push the login screen
+                self?.goToLoginPage()
+            }
+        }
+    }
+    
+    private func goToLoginPage() {
+        DispatchQueue.main.async {
+            guard let sceneDelegate = UIApplication.shared.delegate as? SceneDelegate
+            else { return }
+            
+            // Initialize and set LoginViewController
+            let loginViewController = LoginViewController()
+            sceneDelegate.window?.rootViewController = UINavigationController(
+                rootViewController: loginViewController
+            )
+            sceneDelegate.window?.makeKeyAndVisible()
+        }
+    }
 }

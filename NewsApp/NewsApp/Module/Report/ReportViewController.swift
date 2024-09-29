@@ -42,7 +42,6 @@ final class ReportViewController: UIViewController {
     private let categoryListView = CategoryListView()
     private let viewModel = ReportViewModel()
     private var cancellables = Set<AnyCancellable>()
-    private var lastContentOffset: CGFloat = 0
     
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -203,17 +202,6 @@ extension ReportViewController: UIScrollViewDelegate {
         if offsetY > contentHeight - height - 50 {
             viewModel.loadMoreArticles()
         }
-        
-        // Detect scroll direction
-        if offsetY > lastContentOffset {
-            // User is scrolling down
-//            hideSearchBar()
-        } else if offsetY < lastContentOffset {
-            // User is scrolling up
-//            showSearchBar()
-        }
-        
-        lastContentOffset = offsetY
     }
 }
 

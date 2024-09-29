@@ -8,7 +8,7 @@
 import Foundation
 
 public enum AuthResult<S: Decodable, E: Decodable & Error>: Decodable {
-    case success(S?)
+    case success(S)
     case failure(E)
     
     public init(from decoder: Decoder) throws {
@@ -26,12 +26,11 @@ public enum AuthResult<S: Decodable, E: Decodable & Error>: Decodable {
 
 public struct Empty: Decodable & Error {}
 
-// MARK: Login
-
-public enum LoginResult: Codable {
-    case success(LoginSuccessResponse)
-    case failure(LoginErrorResponse)
+public struct LogoutSuccess: Decodable {
+    let status: String?
 }
+
+// MARK: Login
 
 public struct LoginSuccessResponse: Codable {
     let accessToken: String
@@ -45,11 +44,6 @@ public struct LoginErrorResponse: Codable, Error {
 }
 
 // MARK: Register
-
-public enum RegisterResult: Codable {
-    case success(RegisterSuccessResponse)
-    case failure(RegisterErrorResponse)
-}
 
 public struct RegisterSuccessResponse: Codable {
     let email: String

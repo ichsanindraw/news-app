@@ -15,5 +15,5 @@ struct Constants {
     static let loggedInUserDataKey = "loggedInUserData"
     
     // 10 menit
-    static let loginDuration: Double = 6000 // 600
+    static let loginDuration: Double = 60000 // 600
 }

@@ -180,7 +180,7 @@ final class LoginViewController: UIViewController {
     
     @objc private func registerButtonTapped() {
         if viewModel.isEmailValid {
-            viewModel.signUp()
+            viewModel.register()
         } else {
             showErrorAlert(
                 title: "Invalid Email",
@@ -191,7 +191,7 @@ final class LoginViewController: UIViewController {
     
     @objc private func loginButtonTapped() {
         if viewModel.isEmailValid {
-            viewModel.signIn()
+            viewModel.login()
         } else {
             showErrorAlert(
                 title: "Invalid Email",

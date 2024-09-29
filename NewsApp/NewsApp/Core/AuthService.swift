@@ -20,12 +20,16 @@ protocol AuthServiceProtocol {
         _ password: String
     ) -> AnyPublisher<AuthResult<RegisterSuccessResponse, RegisterErrorResponse>, Error>
     
-    func logout() -> AnyPublisher<AuthResult<Empty, Empty>, Error>
+    func logout() -> AnyPublisher<AuthResult<LogoutSuccess, Empty>, Error>
     func getUserInfo() -> AnyPublisher<AuthResult<User, Empty>, Error>
 }
 
 class AuthService: AuthServiceProtocol {
-    private let networkManager = NetworkManager()
+    private let networkManager: NetworkManager
+    
+    init(networkManager: NetworkManager = NetworkManager()) {
+        self.networkManager = networkManager
+    }
     
     func login(_ clientId: String, _ email: String, _ password: String) -> AnyPublisher<AuthResult<LoginSuccessResponse, LoginErrorResponse>, Error> {
         return networkManager.request(
@@ -51,8 +55,8 @@ class AuthService: AuthServiceProtocol {
         )
     }
     
-    func logout() -> AnyPublisher<AuthResult<Empty, Empty>, Error> {
-        return networkManager.request(.logout, Empty.self, Empty.self)
+    func logout() -> AnyPublisher<AuthResult<LogoutSuccess, Empty>, Error> {
+        return networkManager.request(.logout, LogoutSuccess.self, Empty.self)
     }
     
     func getUserInfo() -> AnyPublisher<AuthResult<User, Empty>, Error> {

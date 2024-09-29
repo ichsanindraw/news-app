@@ -34,9 +34,17 @@ final class RootViewController: UIViewController {
     
     private var dataSource: UICollectionViewDiffableDataSource<SectionType, NewsItem>!
     
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 2
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 20, weight: .bold)
+        return label
+    }()
+    
     private let collectionView: UICollectionView = {
         let view = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        view.contentInset = UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 0)
+        view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.showsHorizontalScrollIndicator = false
         return view
@@ -58,9 +66,11 @@ final class RootViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .white
+        title = "News App"
         
-        setupNavigationTitle()
         setupNavigationAppearance()
+        setupNavigationBar()
+        setupGreetings()
         setupCollection()
         setupUI()
         configureDataSource()
@@ -82,17 +92,20 @@ final class RootViewController: UIViewController {
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
     
-    private func setupNavigationTitle() {
-        let userData = UserManager.shared.getUserData()
-        let titleLabel = UILabel()
-        titleLabel.text = "\(getGreeting()), \(userData?.name ?? "")"
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        titleLabel.textColor = .red
+    private func setupNavigationBar() {
+        let rightBarButton = UIBarButtonItem(
+            title: "Logout",
+            style: .plain,
+            target: self,
+            action: #selector(rightBarButtonTapped)
+        )
         
-        let titleItem = UIBarButtonItem(customView: titleLabel)
-        titleItem.isEnabled = false
-
-        navigationItem.leftBarButtonItem = titleItem
+        navigationItem.rightBarButtonItem = rightBarButton
+    }
+    
+    private func setupGreetings() {
+        let userData = UserManager.shared.getUserData()
+        titleLabel.text = "\(getGreeting()), \(userData?.name ?? "")"
     }
     
     private func bindViewModel() {
@@ -114,6 +127,29 @@ final class RootViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 self?.handleStateChange(for: state, section: .report)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$isLoading
+            .receive(on: DispatchQueue.main)
+            .sink { isLoading in
+                if isLoading {
+                    SwiftOverlays.showBlockingWaitOverlay()
+                } else {
+                    SwiftOverlays.removeAllBlockingOverlays()
+                }
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$errorMessage
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .compactMap { $0 }
+            .sink { [weak self] message in
+                self?.showErrorAlert(
+                    title: "Authentication Failed",
+                    message: message
+                )
             }
             .store(in: &cancellables)
     }
@@ -199,7 +235,7 @@ final class RootViewController: UIViewController {
                 heightDimension: .fractionalHeight(1.0)
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8)
+            item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16)
             
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(0.6),
@@ -218,7 +254,7 @@ final class RootViewController: UIViewController {
             )
             
             let sectionLayout = NSCollectionLayoutSection(group: group)
-            sectionLayout.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
+            sectionLayout.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 0)
             sectionLayout.orthogonalScrollingBehavior = .continuous
             sectionLayout.boundarySupplementaryItems = [sectionHeader]
             
@@ -266,14 +302,46 @@ final class RootViewController: UIViewController {
     }
     
     private func setupUI() {
+        view.addSubview(titleLabel)
         view.addSubview(collectionView)
        
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            collectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+    
+    @objc func rightBarButtonTapped() {
+        let alert = UIAlertController(
+            title: "Logout Confirmation",
+            message: "Are you sure you want to log out? You will need to log in again to access your account.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        alert.addAction(UIAlertAction(title: "Oke", style: .destructive, handler: { [weak self] _ in
+            self?.viewModel.logout()
+        }))
+        
+        present(alert, animated: true, completion: nil)
+    }
+    
+    private func showErrorAlert(title: String, message: String) {
+        let alert = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
     }
 }
 

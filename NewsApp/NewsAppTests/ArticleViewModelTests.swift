@@ -92,7 +92,6 @@ class ArticleViewModelTests: XCTestCase {
             .dropFirst() // Skip the first loading and success state
             .sink { state in
                 if case .success(let articles) = state {
-                    print(">>> articles: \(articles.count)")
                     XCTAssertEqual(articles.count, 2) // Assuming we load more articles here
                     expectation.fulfill()
                 }
