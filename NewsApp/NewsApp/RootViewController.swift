@@ -354,7 +354,7 @@ extension RootViewController: UICollectionViewDelegate {
         switch section {
         case .article:
             if case let .success(data) = viewModel.articlesViewState {
-                let item = data.results[indexPath.row]
+                let item = data[indexPath.row]
                 content = NewsDetailViewController.Data(
                     title: item.title,
                     imageUrl: item.imageUrl,
@@ -364,7 +364,7 @@ extension RootViewController: UICollectionViewDelegate {
             }
         case .blog:
             if case let .success(data) = viewModel.blogsViewState {
-                let item = data.results[indexPath.row]
+                let item = data[indexPath.row]
                 content = NewsDetailViewController.Data(
                     title: item.title,
                     imageUrl: item.imageUrl,
@@ -374,7 +374,7 @@ extension RootViewController: UICollectionViewDelegate {
             }
         case .report:
             if case let .success(data) = viewModel.reportsViewState {
-                let item = data.results[indexPath.row]
+                let item = data[indexPath.row]
                 content = NewsDetailViewController.Data(
                     title: item.title,
                     imageUrl: item.imageUrl,

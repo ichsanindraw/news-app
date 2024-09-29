@@ -9,9 +9,9 @@ import Combine
 import UIKit
 
 class NewsViewModel {
-    @Published var articlesViewState: ViewState<BaseResponse<[Article]>> = .loading
-    @Published var blogsViewState: ViewState<BaseResponse<[Blog]>> = .loading
-    @Published var reportsViewState: ViewState<BaseResponse<[Report]>> = .loading
+    @Published var articlesViewState: ViewState<[Article]> = .loading
+    @Published var blogsViewState: ViewState<[Blog]> = .loading
+    @Published var reportsViewState: ViewState<[Report]> = .loading
     @Published var isLoading: Bool = false
     @Published var errorMessage: String = ""
 
@@ -40,7 +40,7 @@ class NewsViewModel {
                 }
 
             }, receiveValue: { [weak self] data in
-                self?.articlesViewState = .success(data)
+                self?.articlesViewState = .success(data.results)
             })
             .store(in: &cancellables)
     }
@@ -63,7 +63,7 @@ class NewsViewModel {
                 }
 
             }, receiveValue: { [weak self] data in
-                self?.blogsViewState = .success(data)
+                self?.blogsViewState = .success(data.results)
             })
             .store(in: &cancellables)
     }
@@ -86,7 +86,7 @@ class NewsViewModel {
                 }
 
             }, receiveValue: { [weak self] data in
-                self?.reportsViewState = .success(data)
+                self?.reportsViewState = .success(data.results)
             })
             .store(in: &cancellables)
     }
@@ -94,9 +94,11 @@ class NewsViewModel {
     func logout() {
         isLoading = true
         
+        print(">>> isLoading: \(isLoading)")
+        
         newsService.logout(completion: { [weak self] in
             self?.isLoading = false
-            print(">>> ubah loading disini")
+            print(">>> after isLoading: \(self?.isLoading)")
         })
     }
 }

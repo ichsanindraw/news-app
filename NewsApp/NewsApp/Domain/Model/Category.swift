@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Category: Codable {
+public struct Category: Codable {
     let version: String
     let newsSites: [String]
 }

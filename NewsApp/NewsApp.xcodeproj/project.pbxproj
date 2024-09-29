@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		97E55A9A2CA99DCD00DF6422 /* BlogViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E55A992CA99DCD00DF6422 /* BlogViewModelTests.swift */; };
+		97E55A9C2CA99FC200DF6422 /* ReportViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E55A9B2CA99FC200DF6422 /* ReportViewModelTests.swift */; };
+		97E55A9E2CA9A0E400DF6422 /* NewsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E55A9D2CA9A0E400DF6422 /* NewsViewModelTests.swift */; };
+		97E55AA02CA9A61100DF6422 /* LoginViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E55A9F2CA9A61100DF6422 /* LoginViewModelTests.swift */; };
+		97E55AA22CA9A63300DF6422 /* MockAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E55AA12CA9A63300DF6422 /* MockAuthService.swift */; };
 		97EE8E352CA5069800581459 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E342CA5069800581459 /* Helper.swift */; };
 		97EE8E372CA5088200581459 /* NewsDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E362CA5088200581459 /* NewsDetailViewController.swift */; };
 		97EE8E3A2CA50C0400581459 /* UIKit+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E392CA50C0400581459 /* UIKit+Ext.swift */; };
@@ -26,7 +31,6 @@
 		97EE8E5E2CA7243D00581459 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E5D2CA7243D00581459 /* LoginViewController.swift */; };
 		97EE8E602CA725DD00581459 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E5F2CA725DD00581459 /* LoginViewModel.swift */; };
 		97EE8E622CA78F9700581459 /* StoredUserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E612CA78F9600581459 /* StoredUserData.swift */; };
-		97EE8E6A2CA7A24B00581459 /* NewsAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E692CA7A24B00581459 /* NewsAppTests.swift */; };
 		97EE8E712CA7A28F00581459 /* ArticleViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E702CA7A28F00581459 /* ArticleViewModelTests.swift */; };
 		97EE8E742CA7A2B600581459 /* MockNewsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E732CA7A2B600581459 /* MockNewsService.swift */; };
 		97EE8E762CA7BA4200581459 /* BlogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE8E752CA7BA4200581459 /* BlogViewModel.swift */; };
@@ -70,6 +74,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		97E55A992CA99DCD00DF6422 /* BlogViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlogViewModelTests.swift; sourceTree = "<group>"; };
+		97E55A9B2CA99FC200DF6422 /* ReportViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportViewModelTests.swift; sourceTree = "<group>"; };
+		97E55A9D2CA9A0E400DF6422 /* NewsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsViewModelTests.swift; sourceTree = "<group>"; };
+		97E55A9F2CA9A61100DF6422 /* LoginViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModelTests.swift; sourceTree = "<group>"; };
+		97E55AA12CA9A63300DF6422 /* MockAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthService.swift; sourceTree = "<group>"; };
 		97EE8E342CA5069800581459 /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 		97EE8E362CA5088200581459 /* NewsDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDetailViewController.swift; sourceTree = "<group>"; };
 		97EE8E392CA50C0400581459 /* UIKit+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIKit+Ext.swift"; sourceTree = "<group>"; };
@@ -89,7 +98,6 @@
 		97EE8E5F2CA725DD00581459 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		97EE8E612CA78F9600581459 /* StoredUserData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredUserData.swift; sourceTree = "<group>"; };
 		97EE8E672CA7A24B00581459 /* NewsAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NewsAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		97EE8E692CA7A24B00581459 /* NewsAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsAppTests.swift; sourceTree = "<group>"; };
 		97EE8E702CA7A28F00581459 /* ArticleViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleViewModelTests.swift; sourceTree = "<group>"; };
 		97EE8E732CA7A2B600581459 /* MockNewsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNewsService.swift; sourceTree = "<group>"; };
 		97EE8E752CA7BA4200581459 /* BlogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlogViewModel.swift; sourceTree = "<group>"; };
@@ -233,8 +241,11 @@
 			isa = PBXGroup;
 			children = (
 				97EE8E722CA7A2A300581459 /* Mock */,
-				97EE8E692CA7A24B00581459 /* NewsAppTests.swift */,
 				97EE8E702CA7A28F00581459 /* ArticleViewModelTests.swift */,
+				97E55A992CA99DCD00DF6422 /* BlogViewModelTests.swift */,
+				97E55A9B2CA99FC200DF6422 /* ReportViewModelTests.swift */,
+				97E55A9D2CA9A0E400DF6422 /* NewsViewModelTests.swift */,
+				97E55A9F2CA9A61100DF6422 /* LoginViewModelTests.swift */,
 			);
 			path = NewsAppTests;
 			sourceTree = "<group>";
@@ -243,6 +254,7 @@
 			isa = PBXGroup;
 			children = (
 				97EE8E732CA7A2B600581459 /* MockNewsService.swift */,
+				97E55AA12CA9A63300DF6422 /* MockAuthService.swift */,
 			);
 			path = Mock;
 			sourceTree = "<group>";
@@ -467,8 +479,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				97EE8E6A2CA7A24B00581459 /* NewsAppTests.swift in Sources */,
+				97E55AA22CA9A63300DF6422 /* MockAuthService.swift in Sources */,
+				97E55AA02CA9A61100DF6422 /* LoginViewModelTests.swift in Sources */,
 				97EE8E742CA7A2B600581459 /* MockNewsService.swift in Sources */,
+				97E55A9C2CA99FC200DF6422 /* ReportViewModelTests.swift in Sources */,
+				97E55A9A2CA99DCD00DF6422 /* BlogViewModelTests.swift in Sources */,
+				97E55A9E2CA9A0E400DF6422 /* NewsViewModelTests.swift in Sources */,
 				97EE8E712CA7A28F00581459 /* ArticleViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

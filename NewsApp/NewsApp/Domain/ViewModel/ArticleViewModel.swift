@@ -14,8 +14,8 @@ class ArticleViewModel {
     @Published var isLoadMore: Bool = false
     @Published var recentSearch: [String] = []
     
-    private var currentPage = 1
-    private var totalResults = 0
+    var currentPage = 1
+    var totalResults = 0
     private var searchQuery = ""
     private var category = ""
     private var sortBy: SortBy = .asc
@@ -25,9 +25,6 @@ class ArticleViewModel {
     
     init(newsService: NewsServiceProtocol = NewsService()) {
         self.newsService = newsService
-        
-        getArticles(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
-        getCategories()
     }
     
     func sorted() {
@@ -41,7 +38,7 @@ class ArticleViewModel {
         getArticles(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
     
-    func searchArticles(query: String) {
+    func search(query: String) {
         resetState()
         searchQuery = query
         saveRecentSearch(query: query)
@@ -54,7 +51,7 @@ class ArticleViewModel {
         articlesViewState = .loading
     }
     
-    func loadMoreArticles() {
+    func loadMore() {
         guard case let .success(data) = articlesViewState,
               !isLoadMore,
               data.count < totalResults
@@ -67,7 +64,7 @@ class ArticleViewModel {
         getArticles(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
 
-    func getArticles(query: String, category: String, page: Int, sortBy: SortBy) {
+    func getArticles(query: String = "", category: String = "", page: Int = 1, sortBy: SortBy = .asc) {
         newsService.getArticle(10, currentPage, searchQuery, category, sortBy)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoadMore = false

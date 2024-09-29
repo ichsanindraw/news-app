@@ -14,8 +14,8 @@ class ReportViewModel {
     @Published var isLoadMore: Bool = false
     @Published var recentSearch: [String] = []
     
-    private var currentPage = 1
-    private var totalResults = 0
+    var currentPage = 1
+    var totalResults = 0
     private var searchQuery = ""
     private var category = ""
     private var sortBy: SortBy = .asc
@@ -38,7 +38,7 @@ class ReportViewModel {
         getReports(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
     
-    func searchArticles(query: String) {
+    func search(query: String) {
         resetState()
         searchQuery = query
         saveRecentSearch(query: query)
@@ -51,7 +51,7 @@ class ReportViewModel {
         reportsViewState = .loading
     }
     
-    func loadMoreArticles() {
+    func loadMore() {
         guard case let .success(data) = reportsViewState,
               !isLoadMore,
               data.count < totalResults
@@ -64,7 +64,7 @@ class ReportViewModel {
         getReports(query: searchQuery, category: category, page: currentPage, sortBy: sortBy)
     }
 
-    func getReports(query: String, category: String, page: Int, sortBy: SortBy) {
+    func getReports(query: String = "", category: String = "", page: Int = 1, sortBy: SortBy = .asc) {
         newsService.getReport(10, currentPage, searchQuery, category, sortBy)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoadMore = false

@@ -1,8 +1,8 @@
 //
-//  ArticleViewModelTests.swift
+//  ReportViewModelTests.swift
 //  NewsAppTests
 //
-//  Created by Ichsan Indra Wahyudi on 28/09/24.
+//  Created by Ichsan Indra Wahyudi on 29/09/24.
 //
 
 import XCTest
@@ -10,15 +10,15 @@ import Combine
 
 @testable import NewsApp
 
-class ArticleViewModelTests: XCTestCase {
-    var viewModel: ArticleViewModel!
+class ReportViewModelTests: XCTestCase {
+    var viewModel: ReportViewModel!
     var mockService: MockNewsService!
     var cancellables: Set<AnyCancellable>!
 
     override func setUp() {
         super.setUp()
         mockService = MockNewsService()
-        viewModel = ArticleViewModel(newsService: mockService)
+        viewModel = ReportViewModel(newsService: mockService)
         cancellables = []
     }
 
@@ -30,37 +30,37 @@ class ArticleViewModelTests: XCTestCase {
     }
 
     func testInitialState() {
-        XCTAssertEqual(viewModel.articlesViewState, .loading)
+        XCTAssertEqual(viewModel.reportsViewState, .loading)
         XCTAssertEqual(viewModel.categoryViewState, .loading)
         XCTAssertFalse(viewModel.isLoadMore)
         XCTAssertTrue(viewModel.recentSearch.isEmpty)
     }
     
-    func testGetArticlesSuccess() {
-        let expectedArticles: [Article] = [Article.mock1]
+    func testGetReportsSuccess() {
+        let expectedReports: [Report] = [Report.mock1]
         let expectation = self.expectation(description: "Articles fetched successfully")
         
-        mockService.articles = expectedArticles
-        viewModel.$articlesViewState
+        mockService.reports = expectedReports
+        viewModel.$reportsViewState
             .sink { state in
                 if case let .success(articles) = state {
                     XCTAssertEqual(self.viewModel.totalResults, 100)
-                    XCTAssertEqual(articles, expectedArticles)
+                    XCTAssertEqual(articles, expectedReports)
                     expectation.fulfill()
                 }
             }
             .store(in: &cancellables)
         
-        viewModel.getArticles()
+        viewModel.getReports()
         
         waitForExpectations(timeout: 1.0)
     }
     
-    func testGetArticlesFailure() {
+    func testGetReportsFailure() {
         let expectation = self.expectation(description: "Articles fetched failure")
         
         mockService.shouldFail = true
-        viewModel.$articlesViewState
+        viewModel.$reportsViewState
             .sink { state in
                 if case let .error(errorMessage) = state {
                     XCTAssertEqual(errorMessage, "server error")
@@ -69,26 +69,26 @@ class ArticleViewModelTests: XCTestCase {
             }
             .store(in: &cancellables)
         
-        viewModel.getArticles()
+        viewModel.getReports()
         
         waitForExpectations(timeout: 1.0)
     }
     
     func testSortArticles() {
-        let expectedArticles: [Article] = [Article.mock1, Article.mock2]
+        let expectedReports: [Report] = [Report.mock1, Report.mock2]
         let expectation = self.expectation(description: "Articles sorted successfully")
         var fulfillmentCalled = false
         
-        mockService.articles = expectedArticles
-        viewModel.getArticles()
+        mockService.reports = expectedReports
+        viewModel.getReports()
         viewModel.sorted()
        
-        viewModel.$articlesViewState
+        viewModel.$reportsViewState
             .sink { state in
                 if case let .success(articles) = state {
                     if !fulfillmentCalled {
                         fulfillmentCalled = true
-                        XCTAssertEqual(articles, expectedArticles)
+                        XCTAssertEqual(articles, expectedReports)
                         expectation.fulfill()
                     }
                 }
@@ -99,20 +99,20 @@ class ArticleViewModelTests: XCTestCase {
     }
     
     func testFilterByCategory() {
-        let expectedArticles: [Article] = [Article.mock1, Article.mock2]
+        let expectedReports: [Report] = [Report.mock1, Report.mock2]
         let expectation = self.expectation(description: "Successfully filter article by category")
         var fulfillmentCalled = false
         
-        mockService.articles = expectedArticles
-        viewModel.getArticles(category: "category 1")
+        mockService.reports = expectedReports
+        viewModel.getReports(category: "category 1")
         viewModel.filterBy(category: "category 1")
         
-        viewModel.$articlesViewState
+        viewModel.$reportsViewState
             .sink { state in
                 if case let .success(articles) = state {
                     if !fulfillmentCalled {
                         fulfillmentCalled = true
-                        XCTAssertEqual(articles, expectedArticles)
+                        XCTAssertEqual(articles, expectedReports)
                         expectation.fulfill()
                     }
                 }
@@ -123,17 +123,17 @@ class ArticleViewModelTests: XCTestCase {
     }
     
     func testSearch() {
-        let expectedArticles: [Article] = [Article.mock1, Article.mock2]
+        let expectedReports: [Report] = [Report.mock1, Report.mock2]
         let expectation = self.expectation(description: "Successfully search article")
         
-        mockService.articles = expectedArticles
-        viewModel.getArticles()
+        mockService.reports = expectedReports
+        viewModel.getReports()
         viewModel.search(query: "Team")
         
-        viewModel.$articlesViewState
+        viewModel.$reportsViewState
             .sink { state in
                 if case let .success(articles) = state {
-                    XCTAssertEqual(articles, expectedArticles)
+                    XCTAssertEqual(articles, expectedReports)
                     expectation.fulfill()
                 }
             }
@@ -143,17 +143,17 @@ class ArticleViewModelTests: XCTestCase {
     }
     
     func testLoadMoreArticles() {
-        let expectedArticles: [Article] = [Article.mock1, Article.mock2]
-        let expectedArticles2: [Article] = [Article.mock3, Article.mock4]
-        let expectationResult = expectedArticles + expectedArticles2
+        let expectedReports: [Report] = [Report.mock1, Report.mock2]
+        let expectedReports2: [Report] = [Report.mock3, Report.mock4]
+        let expectationResult = expectedReports + expectedReports2
         let expectation = self.expectation(description: "Successfully load more article")
         
-        mockService.articles = expectedArticles
-        viewModel.getArticles()
-        mockService.articles = expectedArticles2
+        mockService.reports = expectedReports
+        viewModel.getReports()
+        mockService.reports = expectedReports2
         viewModel.loadMore()
         
-        viewModel.$articlesViewState
+        viewModel.$reportsViewState
             .sink { state in
                 if case let .success(articles) = state {
                     XCTAssertEqual(articles, expectationResult)
@@ -205,3 +205,4 @@ class ArticleViewModelTests: XCTestCase {
         waitForExpectations(timeout: 1.0)
     }
 }
+

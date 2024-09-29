@@ -64,6 +64,9 @@ final class ReportViewController: UIViewController {
         bindViewModel()
         bindAction()
         setupUI()
+        
+        viewModel.getReports()
+        viewModel.getCategories()
     }
     
     private func setupNavigationBar() {
@@ -115,7 +118,7 @@ final class ReportViewController: UIViewController {
         
         recentSearchView.selectedTextSubject
             .sink {  [weak self] recentSearch in
-                self?.viewModel.searchArticles(query: recentSearch)
+                self?.viewModel.search(query: recentSearch)
                 self?.searchBar.text = recentSearch
                 self?.searchBar.resignFirstResponder()
             }
@@ -133,7 +136,7 @@ final class ReportViewController: UIViewController {
         searchSubject
             .debounce(for: .milliseconds(650), scheduler: RunLoop.main)
             .sink { [weak self] searchText in
-                self?.viewModel.searchArticles(query: searchText)
+                self?.viewModel.search(query: searchText)
             }
             .store(in: &searchSubjectCancellables)
     }
@@ -201,7 +204,7 @@ extension ReportViewController: UIScrollViewDelegate {
         let height = scrollView.frame.size.height
         
         if offsetY > contentHeight - height - 50 {
-            viewModel.loadMoreArticles()
+            viewModel.loadMore()
         }
     }
 }
